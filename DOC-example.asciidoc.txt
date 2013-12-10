@@ -1,0 +1,16 @@
+example asciitest featured asciidoc file
+========================================
+
+
+1. a minimal python based test script
+-------------------------------------
+
+["asciitest", "example_test", "python"]
+----
+import math
+s = math.sin(0)
+TEST(s == 0, 'sin(0) should be zero' )
+s = math.sin(math.pi/2)
+TEST(s == 1, 'sin(0) should be one' )
+----
+
