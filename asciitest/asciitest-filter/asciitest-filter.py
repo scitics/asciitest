@@ -154,7 +154,7 @@ def code_filter():
 
             # output the line to make the test visible in the resulting
             # file
-            print line
+            print ":%s" % line
 
             if "TEST(" in line:
                 # from "TEST(<condition>, <description>)"
@@ -341,18 +341,6 @@ def main():
     # Do the work.
     code_filter()
 
-def main():
-    logging.info( "'%s'"% sys.argv )
-    try:
-        main()
-        
-    except (KeyboardInterrupt, SystemExit):
-        pass
-    except:
-        logging.info("%s: unexpected exit status: %s" %
-            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
-    # Exit with previous sys.exit() status or zero if no sys.exit().
-    sys.exit(sys.exc_info()[1])
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -367,5 +355,15 @@ if __name__ == "__main__":
     logging.addLevelName( logging.DEBUG,    '(DD)' )
     logging.addLevelName( logging.NOTSET,   '(NA)' )
     
-    main()
+    logging.info( "'%s'"% sys.argv )
+    try:
+        main()
+
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    except:
+        logging.info("%s: unexpected exit status: %s" %
+            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
+    # Exit with previous sys.exit() status or zero if no sys.exit().
+    sys.exit(sys.exc_info()[1])
 
