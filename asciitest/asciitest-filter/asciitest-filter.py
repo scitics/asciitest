@@ -67,8 +67,6 @@ keywordtags = {
         ('','')
 }
 
-def print_stderr(line):
-    sys.stderr.write( "doctest: " + str(line) + os.linesep )
 
 def code_filter():
 
@@ -77,7 +75,7 @@ def code_filter():
 
     if language == "text":
         filename = test_name
-        print_stderr( "create a text file called '%s'" % filename )
+        logging.info( "create a text file called '%s'", filename )
         f = open( filename, 'w' )
         #TODO: create files called INPUT-<test-file-name>-<test-file>
         content = sys.stdin.read()
@@ -89,7 +87,7 @@ def code_filter():
 
         test_filename   = "../test/include/TEST-%s-%s.cpp"%(document_name, test_name)
         result_filename = "RESULT-%s-%s.csv"%(document_name, test_name)
-        print_stderr( "create a python script called '%s'" % test_filename )
+        logging.info( "create a python script called '%s'" % test_filename )
         f = open( test_filename, 'w' )
         f.write( '/** automatically generated test file */ ' + os.linesep )
         f.write( '#include <tests/TestEnvironment.h>'          + os.linesep )
@@ -142,7 +140,7 @@ def code_filter():
 
         test_filename = "TEST-%s-%s.py"%(document_name, test_name)
 
-        print_stderr( "create a python script called '%s'" % test_filename )
+        logging.info( "create a python script called '%s'", test_filename )
 
         test_defs = []
         dynamic_code = []
@@ -164,27 +162,27 @@ def code_filter():
                 # "AcmeTest.register_subtest(<counter>,'<condition>', <description>)"
                 # and replace the original by
                 # "AcmeTest.notify_result(<counter>, <condition>)"
-                #print_stderr("found a test line '%s'"%line)
+                #logging.info("found a test line '%s'"%line)
 
 
                 guts = line.strip()
                 guts = guts[guts.find('TEST(') + 5 :-1].strip()
-                #print_stderr( "guts: '%s'"%guts)
+                #logging.info( "guts: '%s'"%guts)
 
                 PATTERN = re.compile(r'''((?:[^,"']|"[^"]*"|'[^']*')+)''')
                 guts = PATTERN.split(guts)
-                #print_stderr( guts )
-                #print_stderr( len(guts) )
-                #print_stderr( guts[1::2] )
+                #logging.info( guts )
+                #logging.info( len(guts) )
+                #logging.info( guts[1::2] )
 
                 # extract and escape the condition component
                 #test_condition = line[line.find('(') + 1 :line.find(',')].strip()
                 test_condition = guts[1]
-                #print_stderr("condition is '%s'"%test_condition)
+                #logging.info("condition is '%s'"%test_condition)
 
                 test_description = guts[3]
                 #test_description = line[line.find(',') + 1 :line.find(')')].strip(' \'\"')
-                print_stderr("added a test for %s" % test_description)
+                logging.info("added a test for %s" % test_description)
 
                 test_defs.append( 'AcmeTest.register_subtest( %d, "%s",'
                     %  (subtest_counter,
@@ -276,9 +274,9 @@ def code_filter():
 
 def usage(msg=''):
     if msg:
-        print_stderr(msg)
-    print_stderr('Usage: doctest-filter -b backend -l language [ -t tabsize ]')
-    print_stderr('                   [ --help | -h ] [ --version | -v ] [ --type | -y ]')
+        logging.info(msg)
+    logging.info('Usage: asciitest-filter -b backend -l language [ -t tabsize ]')
+    logging.info('                   [ --help | -h ] [ --version | -v ] [ --type | -y ]')
 
 def main():
     global language, backend, tabsize, test_name, document_name, test_type
@@ -287,7 +285,7 @@ def main():
     opts,args = getopt.getopt(sys.argv[1:],'hvl:d:u:y:', ['help','version', 'type'])
     
     if len(args) > 0:
-        print_stderr( "unrecognized parameter '%s'" % args )
+        logging.info( "unrecognized parameter '%s'" % args )
         usage()
 
     for o,v in opts:
@@ -344,14 +342,14 @@ def main():
     code_filter()
 
 def main():
-    print_stderr( "'%s'"% sys.argv )
+    logging.info( "'%s'"% sys.argv )
     try:
         main()
         
     except (KeyboardInterrupt, SystemExit):
         pass
     except:
-        print_stderr("%s: unexpected exit status: %s" %
+        logging.info("%s: unexpected exit status: %s" %
             (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
     # Exit with previous sys.exit() status or zero if no sys.exit().
     sys.exit(sys.exc_info()[1])
@@ -370,6 +368,4 @@ if __name__ == "__main__":
     logging.addLevelName( logging.NOTSET,   '(NA)' )
     
     main()
-
-
 

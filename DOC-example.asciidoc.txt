@@ -5,6 +5,8 @@ example asciitest featured asciidoc file
 1. a minimal python based test script
 -------------------------------------
 
+A basic test written in `python` might look like this:
+
 ["asciitest", "example_test", "python"]
 ----
 import math
