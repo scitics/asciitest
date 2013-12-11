@@ -7,12 +7,19 @@ example asciitest featured asciidoc file
 
 A basic test written in `python` might look like this:
 
-["asciitest", "example_test", "python"]
+["asciitest", "example_test", "python", type="hello"]
 ----
 import math
 s = math.sin(0)
 TEST(s == 0, 'sin(0) should be zero' )
 s = math.sin(math.pi/2)
-TEST(s == 1, 'sin(0) should be one' )
+TEST(s == 1, 'sin(PI/2) should be one' )
 ----
+
+
+2. Implementation details
+-------------------------
+
+* generates TEST-*.py output files
+* generates .cmake files
 

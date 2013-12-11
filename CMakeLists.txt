@@ -34,7 +34,15 @@ endif()
 
 add_subdirectory(asciitest)
 
-add_executable(example example.cpp)
+add_executable(example example.cpp
+    CMakeLists.txt
+    README.md
+    asciitest/CMakeModules/FindAsciidoc.cmake
+    asciitest/CMakeLists.txt
+    asciitest/asciitest.py
+    asciitest/asciitest-filter/asciitest-filter.py
+    asciitest/asciitest-filter/asciitest-filter.conf
+)
 
 add_dependencies(example asciitest)
 #enable_testing()

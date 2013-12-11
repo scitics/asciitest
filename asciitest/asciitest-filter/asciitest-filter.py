@@ -46,10 +46,10 @@ import sys
 import re
 import string
 import logging
+from optparse import OptionParser
 
 VERSION = '1.0'
 
-# Globals.
 language = None
 backend = None
 document_name = None
@@ -67,11 +67,14 @@ keywordtags = {
         ('','')
 }
 
+languages = ['text', 'python', 'c++']
 
 def code_filter():
 
     '''This function does all the work.'''
     global language, backend, document_name, test_type, test_name
+
+    line_sep = os.linesep
 
     if language == "text":
         filename = test_name
@@ -79,9 +82,10 @@ def code_filter():
         f = open( filename, 'w' )
         #TODO: create files called INPUT-<test-file-name>-<test-file>
         content = sys.stdin.read()
-        sys.stdout.write( content + os.linesep )
-        f.write         ( content + os.linesep )
+        sys.stdout.write( content + line_sep )
+        f.write         ( content + line_sep )
         f.close()
+
     elif language == "c++":
         subtest_counter = 0
 
@@ -89,15 +93,15 @@ def code_filter():
         result_filename = "RESULT-%s-%s.csv"%(document_name, test_name)
         logging.info( "create a python script called '%s'" % test_filename )
         f = open( test_filename, 'w' )
-        f.write( '/** automatically generated test file */ ' + os.linesep )
-        f.write( '#include <tests/TestEnvironment.h>'          + os.linesep )
-        f.write( ''                            + os.linesep )
-        f.write( 'TestEnvironment AcmeTest;'  + os.linesep )
-        f.write( ''                            + os.linesep )
-        f.write( 'void test()'                 + os.linesep )
-        f.write( '{'                           + os.linesep )
+        f.write( '/** automatically generated test file */ ' + line_sep )
+        f.write( '#include <tests/TestEnvironment.h>'          + line_sep )
+        f.write( ''                            + line_sep )
+        f.write( 'TestEnvironment AcmeTest;'  + line_sep )
+        f.write( ''                            + line_sep )
+        f.write( 'void test()'                 + line_sep )
+        f.write( '{'                           + line_sep )
         f.write( '    AcmeTest.start_tests("%s","%s","%s");'
-                           % (document_name, test_name, result_filename) + os.linesep )
+                           % (document_name, test_name, result_filename) + line_sep )
 
         #TODO: write something like
         #for f in (INPUT-client_lib-*):
@@ -115,26 +119,26 @@ def code_filter():
             #line = string.replace(line,'<','&lt;')
             #line = string.replace(line,'>','&gt;')
 
-            sys.stdout.write( line + os.linesep )
+            sys.stdout.write( line + line_sep )
 
             if "TEST(" in line:
                 line = line.replace( "TEST(", "AcmeTest.notify_result( %d, "
                         %  (subtest_counter ) )
                 subtest_counter += 1
 
-            f.write("    "  + line + os.linesep )
+            f.write("    "  + line + line_sep )
 
             line = sys.stdin.readline()
 
-        f.write( '    AcmeTest.finalize_tests();'   + os.linesep )
-        f.write( '}'                                 + os.linesep )
-        f.write( 'int main(int argc, char *argv[])'  + os.linesep )
-        f.write( '{'                                 + os.linesep )
-        f.write( '    AcmeTest.init(argc, argv);'   + os.linesep )
-        f.write( '    test();'                       + os.linesep )
-        f.write( '}'                                 + os.linesep )
+        f.write( '    AcmeTest.finalize_tests();'   + line_sep )
+        f.write( '}'                                 + line_sep )
+        f.write( 'int main(int argc, char *argv[])'  + line_sep )
+        f.write( '{'                                 + line_sep )
+        f.write( '    AcmeTest.init(argc, argv);'   + line_sep )
+        f.write( '    test();'                       + line_sep )
+        f.write( '}'                                 + line_sep )
         f.close()
-        
+
     elif language == "python":
         subtest_counter = 0
 
@@ -184,167 +188,194 @@ def code_filter():
                 #test_description = line[line.find(',') + 1 :line.find(')')].strip(' \'\"')
                 logging.info("added a test for %s" % test_description)
 
-                test_defs.append( 'AcmeTest.register_subtest( %d, "%s",'
+                test_defs.append( 'asciitest.register_subtest( %d, "%s",'
                     %  (subtest_counter,
                         test_condition.replace("\"","\\\"").replace("\'","\\\'") )
                     + line[line.find(',') + 1 :])
 
-                dynamic_code.append( "    " +  os.linesep )
+                dynamic_code.append( "    " +  line_sep )
                 dynamic_code.append( "    " + "# TEST: %s"%
-                    test_description   + os.linesep )
-                line = line.replace('TEST', 'AcmeTest.notify_result')
+                    test_description   + line_sep )
+                line = line.replace('TEST', 'asciitest.notify_result')
                 line = "%s( %d, %s )" % (
                         line[:line.find('(')],
                         subtest_counter, test_condition )
-                dynamic_code.append( "    "  + line + os.linesep )
+                dynamic_code.append( "    "  + line + line_sep )
                 subtest_counter += 1
             else:
-                dynamic_code.append( "    "  + line + os.linesep )
+                dynamic_code.append( "    "  + line + line_sep )
 
-        f = open( test_filename, 'w' )
-        #f = sys.stdout
+        with open( test_filename, 'w' ) as f:
 
-        f.write( '#!/usr/bin/python'                     + os.linesep )
-        f.write( '# -*- coding: utf-8 -*-'               + os.linesep )
-        f.write( ''                                      + os.linesep )
-        f.write( 'import AcmeClientPython'              + os.linesep )
-        f.write( 'import AcmeTest'                      + os.linesep )
-        f.write( ''                                      + os.linesep )
-        f.write( 'import sys'                            + os.linesep )
-        f.write( 'import os'                             + os.linesep )
-        f.write( 'from optparse import OptionParser'     + os.linesep )
+            f.write( '#!/usr/bin/python'                     + line_sep )
+            f.write( '# -*- coding: utf-8 -*-'               + line_sep )
+            f.write( ''                                      + line_sep )
+            f.write( 'import asciitest'                      + line_sep )
+            f.write( 'from optparse import OptionParser'     + line_sep )
+            f.write( 'import sys'                            + line_sep )
+            f.write( ''                                      + line_sep )
 
-        f.write( ''                                      + os.linesep )
-        f.write( 'def register_tests():'                 + os.linesep )
-        f.write( ''                                      + os.linesep )
+            #f.write( 'import AcmeClientPython'               + line_sep )
+            #f.write( 'import sys'                            + line_sep )
+            #f.write( 'import os'                             + line_sep )
 
-        for i,t in enumerate(test_defs):
-            f.write( '    ' + t                          + os.linesep )
-        f.write( '    pass'                              + os.linesep )
-        f.write( ''                                      + os.linesep )
+            f.write( ''                                      + line_sep )
+            f.write( 'def register_tests():'                 + line_sep )
+            f.write( ''                                      + line_sep )
 
-        f.write( 'def run_subtests():'                   + os.linesep )
-        if test_type and test_type == "acme_integration_test":
-            f.write( '    server, server_id, connection_state = AcmeTest.begin_acme_integration_test()' + os.linesep )
-        #TODO: write something like
-        #for f in (INPUT-client_lib-*):
-        #    cp( f strip(f, "INPUT-client_lib-" )
+            for t in test_defs:
+                f.write( '    ' + t                          + line_sep )
+            f.write( '    pass'                              + line_sep )
+            f.write( ''                                      + line_sep )
 
-        for l in dynamic_code:
-            f.write( l )
-        if test_type and test_type == "acme_integration_test":
-            f.write( '    AcmeTest.end_acme_integration_test(server, server_id, connection_state)' + os.linesep )
+            f.write( 'def run_subtests():'                   + line_sep )
 
-        f.write( '    pass'                              + os.linesep )
-        f.write( ''                                      + os.linesep )
-        f.write( 'def run_tests():'                      + os.linesep )
-        f.write( '    parser = OptionParser()'           + os.linesep )
-        f.write( '    parser.add_option("-r", "--result-file", dest="result_file",'        + os.linesep )
-        f.write( '                      help="write result file", metavar="result-file")'  + os.linesep )
-        f.write( '    parser.add_option("-l", "--log-file", dest="log_file",'              + os.linesep )
-        f.write( '                     help="write log to file", metavar="log_file")'      + os.linesep )
-        f.write( '    parser.add_option("-b", "--acme_binary", dest="acme_binary",'           + os.linesep )
-        f.write( '                     help="path to the acme binary to be used", metavar="FILE")'   + os.linesep )
-        f.write( '    parser.add_option("-v", "--verbose", dest="verbose", default=False,'                  + os.linesep )
-        f.write( '                      action="store_true", help="set verbosity on", metavar="verbosity")' + os.linesep )
-        f.write( '    (options, args) = parser.parse_args()'                                                + os.linesep )
-        f.write( '    if options.result_file: AcmeTest.set_result_file( options.result_file )'             + os.linesep )
-        f.write( '    if options.log_file: AcmeTest.set_log_file( options.log_file )'                      + os.linesep )
-        f.write( '    if options.acme_binary: AcmeTest.set_acme_binary( options.acme_binary )' + os.linesep )
-        f.write( '    acmeTest.start_tests("%s","%s")'
-                           % (document_name, test_name)  + os.linesep )
-        f.write( '    register_tests()'                                  + os.linesep )
-        f.write( '    ret_val = 0'                                       + os.linesep )
-        f.write( '    try:'                                              + os.linesep )
-        f.write( '        run_subtests()'                                + os.linesep )
-        f.write( '    except Exception, ex:'                             + os.linesep )
-        f.write( '        print "Error executing test"'                  + os.linesep )
-        f.write( '        print ex'                                      + os.linesep )
-        f.write( '        ret_val = -1'                                  + os.linesep )
-        f.write( '        AcmeTest.end_client_lib()'                    + os.linesep )
-        f.write( '    AcmeTest.finalize_tests()'                        + os.linesep )
-        f.write( '    sys.exit(ret_val)'                                 + os.linesep )
-        f.write( ''                                                      + os.linesep )
-        f.write( 'if __name__ == "__main__":'                            + os.linesep )
-        f.write( '    run_tests()'                                       + os.linesep )
+            #if test_type and test_type == "acme_integration_test":
+            #    f.write( '    server, server_id, connection_state = AcmeTest.begin_acme_integration_test()' + line_sep )
 
-        f.close()
+            #TODO: write something like
+            #for f in (INPUT-client_lib-*):
+            #    cp( f strip(f, "INPUT-client_lib-" )
+
+            for l in dynamic_code:
+                f.write( l )
+
+            #if test_type and test_type == "acme_integration_test":
+            #    f.write( '    AcmeTest.end_acme_integration_test(server, server_id, connection_state)' + line_sep )
+
+            f.write( '    pass'                              + line_sep )
+            f.write( ''                                      + line_sep )
+            f.write( 'def run_tests():'                      + line_sep )
+            f.write( '    parser = OptionParser()'           + line_sep )
+            f.write( '    parser.add_option("-r", "--result-file", dest="result_file",'        + line_sep )
+            f.write( '                      help="write result file", metavar="result-file")'  + line_sep )
+            f.write( '    parser.add_option("-l", "--log-file", dest="log_file",'              + line_sep )
+            f.write( '                     help="write log to file", metavar="log_file")'      + line_sep )
+            f.write( '    parser.add_option("-b", "--acme_binary", dest="acme_binary",'           + line_sep )
+            f.write( '                     help="path to the acme binary to be used", metavar="FILE")'   + line_sep )
+            f.write( '    parser.add_option("-v", "--verbose", dest="verbose", default=False,'                  + line_sep )
+            f.write( '                      action="store_true", help="set verbosity on", metavar="verbosity")' + line_sep )
+            f.write( '    (options, args) = parser.parse_args()'                                                + line_sep )
+            f.write( '    if options.result_file: asciitest.set_result_file( options.result_file )'             + line_sep )
+            f.write( '    if options.log_file:    asciitest.set_log_file( options.log_file )'                   + line_sep )
+            f.write( '    if options.acme_binary: asciitest.set_acme_binary( options.acme_binary )'             + line_sep )
+            f.write( '    asciitest.start_tests("%s","%s")'
+                               % (document_name, test_name)  + line_sep )
+            f.write( '    register_tests()'                                  + line_sep )
+            f.write( '    ret_val = 0'                                       + line_sep )
+            f.write( '    try:'                                              + line_sep )
+            f.write( '        run_subtests()'                                + line_sep )
+            f.write( '    except Exception, ex:'                             + line_sep )
+            f.write( '        print "Error executing test"'                  + line_sep )
+            f.write( '        print ex'                                      + line_sep )
+            f.write( '        ret_val = -1'                                  + line_sep )
+            f.write( '    asciitest.finalize_tests()'                        + line_sep )
+            f.write( '    sys.exit(ret_val)'                                 + line_sep )
+            f.write( ''                                                      + line_sep )
+            f.write( 'if __name__ == "__main__":'                            + line_sep )
+            f.write( '    run_tests()'                                       + line_sep )
+
     elif language == "python_acme_":
         pass
 
-def usage(msg=''):
-    if msg:
-        logging.info(msg)
-    logging.info('Usage: asciitest-filter -b backend -l language [ -t tabsize ]')
-    logging.info('                   [ --help | -h ] [ --version | -v ] [ --type | -y ]')
-
 def main():
     global language, backend, tabsize, test_name, document_name, test_type
-    # Process command line options.
-    import getopt
-    opts,args = getopt.getopt(sys.argv[1:],'hvl:d:u:y:', ['help','version', 'type'])
-    
+
+    parser = OptionParser(usage="usage: %prog [options]")
+
+
+    parser.add_option("-b", "--backend", dest="backend",
+                      default="html",
+                      metavar="NAME",
+                      help="name of the asciidoc backend to be used")
+
+    parser.add_option("-d", "--document", dest="document",
+                      metavar="FILENAME",
+                      help="name of the input document")
+
+    parser.add_option("-V", "--version", dest="version",
+                      action="store_true", default = False,
+                      help = "be more verbose")
+
+    parser.add_option("-v", "--verbose", dest="verbose",
+                      action="store_true", default = False,
+                      help = "be more verbose")
+
+    parser.add_option("-u", "--unit-name", dest="test_name",
+                      metavar="NAME",
+                      help="name of the given test unit")
+
+    parser.add_option("-l", "--language", dest="language",
+                      metavar="LANGUAGE",
+                      help="python|c++|text")
+
+    parser.add_option("-y", "--test-type", dest="type",
+                      metavar="TYPE",
+                      help="test specialization")
+
+    parser.add_option("-t", "--tabsize", dest="tabsize",
+                      metavar="SIZE",
+                      help="indentation size")
+
+
+    (options, args) = parser.parse_args()
+
     if len(args) > 0:
-        logging.info( "unrecognized parameter '%s'" % args )
-        usage()
+        parser.print_help()
+        logging.error( "unrecognized parameter '%s'" % args )
+        sys.exit(-1)
 
-    for o,v in opts:
+    if options.version:
+        logging.error('asciitest-filter version %s' % (VERSION,))
+        sys.exit(0)
 
-        if o in ('--help','-h'):
-            print __doc__
-            sys.exit(0)
-        if o in ('--version','-v'):
-            print('doctest-filter version %s' % (VERSION,))
-            sys.exit(0)
-        if o == '-b':
-            backend = v
-        if o == '-d':
-            document_name = v
-            if(document_name.startswith("DOC")): document_name = document_name[4:]
-        if o == '-u':
-            test_name = v
-        if o == '-l':
-            v = string.lower(v)
-            if v == 'c': v = 'c++'
-            language = v
-        if o == '-y':
-            v = string.lower(v)
-            test_type = v
-        if o == '-t':
-            try:
-                tabsize = int(v)
-            except:
-                usage('illegal tabsize')
-                sys.exit(5)
-            if tabsize <= 0:
-                usage('illegal tabsize')
-                sys.exit(5)
+    if options.backend and options.backend in keywordtags:
+        backend = options.backend
+    else:
+        logging.error('backend must be set and must be one of %s' % str(keywordtags.keys()))
+        parser.print_help()
+        sys.exit(-1)
 
-#    if backend is None:
-#        usage('backend option is mandatory')
-#        sys.exit(4)
+    if options.document:
+        document_name = options.document
+        if(document_name.startswith("DOC")):
+            document_name = document_name[4:]
+    else:
+        logging.error('document name must be set')
+        parser.print_help()
+        sys.exit(-1)
 
-#    if not keywordtags.has_key(backend):
-#        usage('illegal backend option')
-#        sys.exit(3)
+    if options.test_name:
+        test_name = options.test_name
+    else:
+        logging.error('test name must be set')
+        parser.print_help()
+        sys.exit(-1)
 
-    if test_name is None:
-        usage('unit-name option is mandatory')
-        sys.exit(2)
+    if options.language and options.language in languages:
+        language = options.language
+    else:
+        logging.error('language must be set and must be one of %s' % str(languages))
+        parser.print_help()
+        sys.exit(-1)
 
-    if language is None:
-        usage('language option is mandatory')
-        sys.exit(6)
-#    if not keywords.has_key(language):
-#        usage('illegal language option')
-#        sys.exit(1)
-    # Do the work.
+    if options.type:
+        test_type = options.type
+
+    if options.tabsize:
+        try:
+            tabsize = int(options.tabsize)
+        except:
+            print('tab size invalid')
+            parser.print_help()
+            sys.exit(-1)
+
     code_filter()
 
 
 if __name__ == "__main__":
     logging.basicConfig(
-        format='%(asctime)s %(levelname)s [%(name)s] %(message)s',
+        format='%(asctime)s %(levelname)s %(message)s',
         datefmt="%y%m%d-%H%M%S")
     logging.getLogger().setLevel(logging.DEBUG)
     
@@ -364,6 +395,6 @@ if __name__ == "__main__":
     except:
         logging.info("%s: unexpected exit status: %s" %
             (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
-    # Exit with previous sys.exit() status or zero if no sys.exit().
+    # exit with previous sys.exit() status or zero if no sys.exit().
     sys.exit(sys.exc_info()[1])
 
