@@ -3,12 +3,7 @@
 # file: test/test-server-wiki_import.py
 
 import sys
-#import os
 import time
-#import threading
-#import socket
-#from subprocess import Popen, PIPE, STDOUT
-#import platform
 
 last_counter = -1
 result_file = None
@@ -102,15 +97,3 @@ def notify_result( counter, result ):
         base_time = time.time() * 1000.0
     except Exception, ex:
         write_log("ERROR:" + str(ex))
-
-#def select_newer_file(candidate_list):
-#    max_time_stamp = 0
-#    file_candidate = candidate_list[0]
-#    for file in candidate_list:
-#        if os.path.isfile(file):
-#            st=os.stat(file)
-#            mtime=st.st_mtime
-#            if mtime > max_time_stamp:
-#                max_time_stamp = mtime
-#                file_candidate = file
-#    return file_candidate

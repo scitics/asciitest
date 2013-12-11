@@ -16,6 +16,15 @@ s = math.sin(math.pi/2)
 TEST(s == 1, 'sin(PI/2) should be one' )
 ----
 
+["asciitest", "example_test2", "python"]
+----
+import math
+s = math.sin(0)
+TEST(s == 0, 'sin(0) should be zero' )
+s = math.sin(math.pi/2)
+TEST(s == 1, 'sin(PI/2) should be one' )
+----
+
 
 2. Implementation details
 -------------------------

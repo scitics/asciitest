@@ -40,9 +40,13 @@ add_executable(example example.cpp
     asciitest/CMakeModules/FindAsciidoc.cmake
     asciitest/CMakeLists.txt
     asciitest/asciitest.py
-    asciitest/asciitest-filter/asciitest-filter.py
-    asciitest/asciitest-filter/asciitest-filter.conf
+    asciitest/asciitest-cmake_helpers.py
+    asciitest/asciitest_filter/asciitest_filter.py
+    asciitest/asciitest_filter/asciitest_filter.conf
 )
 
 add_dependencies(example asciitest)
-#enable_testing()
+
+enable_testing()
+
+add_test(generic_cpp example)

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 '''
 NAME
-    asciitest-filter - AsciiDoc filter for generating test code from asciidoc files
+    asciitest_filter - AsciiDoc filter for generating test code from asciidoc files
 
 SYNOPSIS
-    asciitest-filter -b backend -l language [ -t tabsize ]
+    asciitest_filter -b backend -l language [ -t tabsize ]
                 [ --help | -h ] [ --version | -v ]
 
 DESCRIPTION
@@ -46,6 +46,7 @@ import sys
 import re
 import string
 import logging
+import hashlib
 from optparse import OptionParser
 
 VERSION = '1.0'
@@ -53,6 +54,9 @@ VERSION = '1.0'
 language = None
 backend = None
 document_name = None
+input_file = None
+output_file = None
+output_dir = None
 tabsize = 4
 test_type = None
 
@@ -69,10 +73,16 @@ keywordtags = {
 
 languages = ['text', 'python', 'c++']
 
+def save_cmake_filename(filename):
+    return "%s.cmake" % hashlib.sha1(os.path.basename(filename)).hexdigest()[:20]
+
 def code_filter():
 
     '''This function does all the work.'''
-    global language, backend, document_name, test_type, test_name
+    global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
+
+    test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
+    test_list_file = open(test_list_filename, 'w')
 
     line_sep = os.linesep
 
@@ -144,7 +154,13 @@ def code_filter():
 
         test_filename = "TEST-%s-%s.py"%(document_name, test_name)
 
+        test_list_file.write(
+            "add_test(%s_%s python %s)\n" % (
+                document_name, test_name, test_filename))
+
         logging.info( "create a python script called '%s'", test_filename )
+        logging.info( "filename hash '%s'", save_cmake_filename(input_file) )
+        logging.info( "output dir '%s'", output_dir)
 
         test_defs = []
         dynamic_code = []
@@ -279,7 +295,7 @@ def code_filter():
         pass
 
 def main():
-    global language, backend, tabsize, test_name, document_name, test_type
+    global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
 
     parser = OptionParser(usage="usage: %prog [options]")
 
@@ -291,7 +307,15 @@ def main():
 
     parser.add_option("-d", "--document", dest="document",
                       metavar="FILENAME",
+                      help="stripped name of the output document")
+
+    parser.add_option("-i", "--input-file", dest="input_file",
+                      metavar="FILENAME",
                       help="name of the input document")
+
+    parser.add_option("-o", "--output-file", dest="output_file",
+                      metavar="FILENAME",
+                      help="name of the output document")
 
     parser.add_option("-V", "--version", dest="version",
                       action="store_true", default = False,
@@ -326,7 +350,7 @@ def main():
         sys.exit(-1)
 
     if options.version:
-        logging.error('asciitest-filter version %s' % (VERSION,))
+        logging.error('asciitest_filter version %s' % (VERSION,))
         sys.exit(0)
 
     if options.backend and options.backend in keywordtags:
@@ -344,6 +368,13 @@ def main():
         logging.error('document name must be set')
         parser.print_help()
         sys.exit(-1)
+
+    if options.input_file:
+        input_file = options.input_file
+
+    if options.output_file:
+        output_file = options.output_file
+        output_dir = os.path.dirname(output_file)
 
     if options.test_name:
         test_name = options.test_name
