@@ -31,4 +31,3 @@ TEST(s == 1, 'sin(PI/2) should be one' )
 
 * generates TEST-*.py output files
 * generates .cmake files
-
