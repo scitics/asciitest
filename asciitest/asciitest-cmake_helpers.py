@@ -7,15 +7,27 @@ import sys
 import hashlib
 
 def save_cmake_filename(filename):
-    return "%s.cmake" % hashlib.sha1(os.path.basename(filename)).hexdigest()[:20]
+    base_name = os.path.basename(os.path.abspath(filename.strip('\n ')))
+    hash_name = "%s.cmake" % hashlib.sha1(base_name).hexdigest()[:20]
+    #print("hash_name1: '%s' => '%s'" % (base_name, hash_name))
+    return hash_name
+
 
 def create_master(asciitest_out_dir):
+    """ will create a .cmake include file containing an entry for all existing
+        asciidoc files and makes these files exist
+    """
     filename_out = os.path.join(asciitest_out_dir, "asciitest-master.cmake")
     filename_in = os.path.join(asciitest_out_dir, "asciitest-all_input_files.txt")
     with open(filename_out,'w') as f_out:
         for line in open(filename_in).readlines():
-            f_out.write("# %s\n" % line)
-            f_out.write("# include %s\n" % save_cmake_filename(line))
+            f_out.write("# %s" % line)
+            cmake_include_filename = os.path.join(
+                asciitest_out_dir,
+                save_cmake_filename(line))
+            #print("create entry '%s'" %cmake_include_filename)
+            f_out.write("include(%s)\n" % cmake_include_filename )
+            open(cmake_include_filename, 'a').close()
 
 def cleanup(asciitest_out_dir, doc_file):
     """remove all test files without corresponding doc files and remove 
@@ -23,7 +35,11 @@ def cleanup(asciitest_out_dir, doc_file):
        corresponding doc files any more
     """
     filename = os.path.join(asciitest_out_dir, save_cmake_filename(doc_file))
-    print("cleanup %s %s" % (doc_file, filename))
+    #print("cleanup %s %s" % (doc_file, filename))
+    try:
+        os.remove(filename)
+    except:
+        pass
 
 
 if __name__ == "__main__":
@@ -37,7 +53,7 @@ if __name__ == "__main__":
                       help="asciitest directory to clean up")
     parser.add_option("--cleanup", dest="cleanup",
                       action="store_true", default = False,
-                      help="asciitest directory to clean up")
+                      help="trigger a clean up step")
 
     (options, args) = parser.parse_args()
 

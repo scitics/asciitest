@@ -74,7 +74,10 @@ keywordtags = {
 languages = ['text', 'python', 'c++']
 
 def save_cmake_filename(filename):
-    return "%s.cmake" % hashlib.sha1(os.path.basename(filename)).hexdigest()[:20]
+    base_name = os.path.basename(os.path.abspath(filename.strip('\n ')))
+    hash_name = "%s.cmake" % hashlib.sha1(base_name).hexdigest()[:20]
+    #logging.debug("hash_name2: '%s' => '%s'" % (base_name, hash_name))
+    return hash_name
 
 def code_filter():
 
@@ -82,7 +85,7 @@ def code_filter():
     global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
 
     test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
-    test_list_file = open(test_list_filename, 'w')
+    test_list_file = open(test_list_filename, 'a')
 
     line_sep = os.linesep
 

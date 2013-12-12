@@ -24,9 +24,9 @@ if( PYTHONINTERP_FOUND )
     # create a file containing all input files - we'll need it later to
     # get rid of tests which do not exist any more
     set(input_files_file "${CONFIG_ASCIITEST_OUTDIR}/asciitest-all_input_files.txt" )
-    file( WRITE "${input_files_file}")
+    file(WRITE "${input_files_file}") # clear the file - should better be a remove
     foreach(filename ${${PROJECT_NAME}_FILES})
-        file(APPEND "${input_files_file}" ${filename})
+        file(APPEND "${input_files_file}" "${filename}\n")
     endforeach()
 
     execute_process(COMMAND ${PYTHON_EXECUTABLE}
@@ -65,8 +65,10 @@ if( PYTHONINTERP_FOUND )
             MAIN_DEPENDENCY
                     "${filter_dir}/${main_dependency}"
             COMMENT "create and install plugin for '${filter_name}'"
-          )
+        )
+
         set( filter_dependencies ${filter_dependencies} "${CMAKE_BINARY_DIR}/${filter_name}.zip" PARENT_SCOPE )
+
     endfunction()
 
     option( CONFIG_INSTALL_EXTRA_ASCIIDOC_FILTERS "Create and install asciidoc filters" ON )
@@ -102,12 +104,17 @@ if( PYTHONINTERP_FOUND )
                     #-a icons
                     --out-file ${outvar_html}
                     ${infile}
+#            COMMAND ${PYTHON_EXECUTABLE}
+#                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
+#                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
             MAIN_DEPENDENCY
                     ${infile}
             WORKING_DIRECTORY
                     ${CMAKE_BINARY_DIR}
             COMMENT "Running asciidoc for html on \"${infile}\""
         )
+
+#        include("${CONFIG_ASCIITEST_OUTDIR}/asciitest-master.cmake")
 
         add_custom_target(doc-html-${docname}
             SOURCES  ${infile}

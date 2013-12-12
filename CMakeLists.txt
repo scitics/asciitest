@@ -9,6 +9,8 @@ project( asciitest_example )
 
 cmake_minimum_required(VERSION 2.8)
 
+enable_testing()
+
 if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     message( FATAL_ERROR "this is the example CMake project made to "
                          "demonstrate how to use asciitest inside a CMake "
@@ -46,7 +48,5 @@ add_executable(example example.cpp
 )
 
 add_dependencies(example asciitest)
-
-enable_testing()
 
 add_test(generic_cpp example)
