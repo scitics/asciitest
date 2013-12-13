@@ -40,7 +40,7 @@ if( PYTHONINTERP_FOUND )
 
     function(install_asciidoc_filter filter_name filter_dir main_dependency)
 
-        message("install_asciidoc_filter( filter='${filter_name}' main_dependency='${main_dependency}'")
+        #message("install_asciidoc_filter( filter='${filter_name}' main_dependency='${main_dependency}'")
 
         file( WRITE "${CMAKE_BINARY_DIR}/asciidoc-install-${filter_name}-plugin.cmake"
            "execute_process(COMMAND
@@ -107,6 +107,9 @@ if( PYTHONINTERP_FOUND )
 #            COMMAND ${PYTHON_EXECUTABLE}
 #                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
 #                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
+            # re-run cmake since .cmake files might have been generated
+            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
+
             MAIN_DEPENDENCY
                     ${infile}
             WORKING_DIRECTORY
@@ -130,7 +133,6 @@ if( PYTHONINTERP_FOUND )
 
     foreach( var ${${PROJECT_NAME}_FILES} )
         create_doc_html( ${var} )
-        message( "yyy ${var}" )
     endforeach()
 
 
@@ -140,7 +142,8 @@ if( PYTHONINTERP_FOUND )
             COMMENT "generate xunit files from CTest output"
             COMMAND ${PYTHON_EXECUTABLE}
                     "${CMAKE_CURRENT_SOURCE_DIR}/cmake2xunit.py"
-                    "-d" ${CMAKE_BINARY_DIR}
+                    "-d" "${CMAKE_BINARY_DIR}"
+                    "-o" "${CMAKE_BINARY_DIR}/xunit_test_output.xml"
     )
 
 else()
