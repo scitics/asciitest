@@ -49,4 +49,5 @@ add_executable(example example.cpp
 
 add_dependencies(example asciitest)
 
-add_test(generic_cpp example)
+add_test(generic_cpp_success example)
+add_test(generic_cpp_failure example failure)
