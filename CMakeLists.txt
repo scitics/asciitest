@@ -36,15 +36,15 @@ endif()
 
 add_subdirectory(asciitest)
 
-add_executable(example example.cpp
-    CMakeLists.txt
+file( GLOB_RECURSE ${PROJECT_NAME}_FILES
     README.md
-    asciitest/CMakeModules/FindAsciidoc.cmake
-    asciitest/CMakeLists.txt
-    asciitest/asciitest.py
-    asciitest/asciitest-cmake_helpers.py
-    asciitest/asciitest_filter/asciitest_filter.py
-    asciitest/asciitest_filter/asciitest_filter.conf
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.txt"
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.conf"
+)
+
+add_executable(example example.cpp
+    ${${PROJECT_NAME}_FILES}
 )
 
 add_dependencies(example asciitest)

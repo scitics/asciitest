@@ -1,5 +1,15 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# file: env_run.py
+#
+# Copyright 2011 - 2013 scitics GmbH
+#
+# Information  contained  herein  is  subject  to change  without  notice.
+# scitics GmbH  retains ownership and  all other rights  in this software.
+# Any reproduction of the software or components thereof without the prior
+# written permission of scitics GmbH is prohibited.
+
 """ runs a python script with additional enviroment variables"""
 
 from optparse import OptionParser
@@ -13,16 +23,16 @@ def run(script_file):
 
     _env = os.environ.copy()
 
-    _env[ 'PYTHONPATH'     ] = os.path.dirname(os.path.abspath(__file__)    )
+    _env[ 'PYTHONPATH'     ] = os.path.dirname(os.path.abspath(__file__))
 
     _process = subprocess.Popen(
         [sys.executable, script_file],
-#        stdout=subprocess.PIPE,
+        # stdout=subprocess.PIPE,
         env = _env)
 
     _asciidoc_output = _process.communicate()[0]
 
-#    print _asciidoc_output
+    # print _asciidoc_output
 
     _return_value = _process.returncode
 

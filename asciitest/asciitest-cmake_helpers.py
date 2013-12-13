@@ -1,5 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# file: asciitest-cmake_helpers.py
+#
+# Copyright 2011 - 2013 scitics GmbH
+#
+# Information  contained  herein  is  subject  to change  without  notice.
+# scitics GmbH  retains ownership and  all other rights  in this software.
+# Any reproduction of the software or components thereof without the prior
+# written permission of scitics GmbH is prohibited.
 
 from optparse import OptionParser
 import os
