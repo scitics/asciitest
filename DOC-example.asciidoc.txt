@@ -50,5 +50,7 @@ In Long
 ** generates .cmake files
 * CTest-Run
 * xunit-conversion
+** see https://github.com/rpavlik/jenkins-ctest-plugin
 ** see https://issues.jenkins-ci.org/browse/JENKINS-17884
+** see http://alexott.blogspot.de/2012/03/jenkins-cmakectest.html
 

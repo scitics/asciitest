@@ -29,6 +29,9 @@ if( PYTHONINTERP_FOUND )
         file(APPEND "${input_files_file}" "${filename}\n")
     endforeach()
 
+    # generate a dummy Dart config file to make CTest shut up
+    file(WRITE "${CMAKE_BINARY_DIR}/DartConfiguration.tcl")
+
     execute_process(COMMAND ${PYTHON_EXECUTABLE}
                     "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
                     "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR} )
