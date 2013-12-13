@@ -59,6 +59,9 @@ import string
 import logging
 import hashlib
 from optparse import OptionParser
+from pygments import highlight
+from pygments.lexers import PythonLexer, get_lexer_by_name
+from pygments.formatters import HtmlFormatter
 
 VERSION = '1.0'
 
@@ -182,7 +185,7 @@ def code_filter():
 
         test_defs = []
         dynamic_code = []
-
+        passthrough_code = ""
         while True:
             line = sys.stdin.readline()
             if not line: break
@@ -192,7 +195,7 @@ def code_filter():
 
             # output the line to make the test visible in the resulting
             # file
-            print ":%s" % line
+            passthrough_code += "%s\n" % line
 
             if "TEST(" in line:
                 # from "TEST(<condition>, <description>)"
@@ -310,6 +313,19 @@ def code_filter():
             f.write( ''                                                      + line_sep )
             f.write( 'if __name__ == "__main__":'                            + line_sep )
             f.write( '    run_tests()'                                       + line_sep )
+
+
+        lexer = get_lexer_by_name("python", stripall=True)
+        formatter = HtmlFormatter(linenos=True, cssclass="source")
+        result = highlight(passthrough_code, lexer, formatter)
+
+        highlighted = str(highlight(passthrough_code, lexer, formatter))
+
+        print highlight(passthrough_code, PythonLexer(), HtmlFormatter(cssclass="highlight"))
+
+        #print highlighted
+        #logging.info("highlighted")
+        #logging.info(highlighted)
 
     elif language == "python_acme_":
         pass

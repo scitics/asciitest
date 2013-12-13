@@ -101,7 +101,7 @@ if( PYTHONINTERP_FOUND )
                     -a max-width=1024px
                     -a linkcss
                     -a stylesdir=style
-                    -a stylesheet=Acme.css
+                    -a stylesheet=pygments.css
                     -a disable-javascript
                     #-a badges
                     #-a icons
