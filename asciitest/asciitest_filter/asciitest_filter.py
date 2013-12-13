@@ -230,7 +230,7 @@ def code_filter():
                 dynamic_code.append( "    " +  line_sep )
                 dynamic_code.append( "    " + "# TEST: %s"%
                     test_description   + line_sep )
-                line = line.replace('TEST', 'asciitest.notify_result')
+                line = line.replace('TEST', 'all_tests_succeeded = all_tests_succeeded and asciitest.notify_result')
                 line = "%s( %d, %s )" % (
                         line[:line.find('(')],
                         subtest_counter, test_condition )
@@ -263,6 +263,7 @@ def code_filter():
             f.write( ''                                      + line_sep )
 
             f.write( 'def run_subtests():'                   + line_sep )
+            f.write( '    all_tests_succeeded = True'        + line_sep )
 
             #if test_type and test_type == "acme_integration_test":
             #    f.write( '    server, server_id, connection_state = AcmeTest.begin_acme_integration_test()' + line_sep )
@@ -277,6 +278,7 @@ def code_filter():
             #if test_type and test_type == "acme_integration_test":
             #    f.write( '    AcmeTest.end_acme_integration_test(server, server_id, connection_state)' + line_sep )
 
+            f.write( '    return all_tests_succeeded'        + line_sep )
             f.write( '    pass'                              + line_sep )
             f.write( ''                                      + line_sep )
             f.write( 'def run_tests():'                      + line_sep )
@@ -298,7 +300,7 @@ def code_filter():
             f.write( '    register_tests()'                                  + line_sep )
             f.write( '    ret_val = 0'                                       + line_sep )
             f.write( '    try:'                                              + line_sep )
-            f.write( '        run_subtests()'                                + line_sep )
+            f.write( '        ret_val = 0 if run_subtests() else -1'         + line_sep )
             f.write( '    except Exception, ex:'                             + line_sep )
             f.write( '        print "Error executing test"'                  + line_sep )
             f.write( '        print ex'                                      + line_sep )

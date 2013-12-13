@@ -25,10 +25,24 @@ s = math.sin(math.pi/2)
 TEST(s == 1, 'sin(PI/2) should be one' )
 ----
 
+["asciitest", "failing", "python"]
+----
+TEST("mama" == "papa", 'mama equals papa')
+----
+
 2. Istallation
 --------------
 
-TBD
+Jenkins
+~~~~~~~
+* configure test after build:
+----
+  cd $WORKSPACE/build
+  ctest -T test --no-compress-output || true
+----
+* install xUnit plugin
+* configure "CTest version N/A"
+* provide pattern `build/Testing/*/Test.xml`
 
 
 3. Implementation details

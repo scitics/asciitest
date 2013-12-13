@@ -105,3 +105,5 @@ def notify_result( counter, result ):
         base_time = time.time() * 1000.0
     except Exception, ex:
         write_log("ERROR:" + str(ex))
+
+    return result
