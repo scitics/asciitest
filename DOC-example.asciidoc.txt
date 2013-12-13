@@ -25,9 +25,30 @@ s = math.sin(math.pi/2)
 TEST(s == 1, 'sin(PI/2) should be one' )
 ----
 
+2. Istallation
+--------------
 
-2. Implementation details
+TBD
+
+
+3. Implementation details
 -------------------------
 
-* generates TEST-*.py output files
-* generates .cmake files
+In short
+~~~~~~~~
+* CMake uses asciidoc with asciitest to generate
+** Test-executables from the doc files
+** CTest entries used to generate CTest-Tests
+* CTest generates output which can be read by Jenkins
+
+In Long
+~~~~~~~
+
+* CMake-Configuration
+* CMake-Generation
+** generates TEST-*.py output files
+** generates .cmake files
+* CTest-Run
+* xunit-conversion
+** see https://issues.jenkins-ci.org/browse/JENKINS-17884
+

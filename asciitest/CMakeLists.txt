@@ -133,6 +133,16 @@ if( PYTHONINTERP_FOUND )
         message( "yyy ${var}" )
     endforeach()
 
+
+    add_custom_target( ctest_to_xunit )
+    add_custom_command(
+        TARGET ctest_to_xunit
+            COMMENT "generate xunit files from CTest output"
+            COMMAND ${PYTHON_EXECUTABLE}
+                    "${CMAKE_CURRENT_SOURCE_DIR}/cmake2xunit.py"
+                    "-d" ${CMAKE_BINARY_DIR}
+    )
+
 else()
 
     message( WARNING "Python interpreter not found. Sexy HTML documentation won't be generated.." )
