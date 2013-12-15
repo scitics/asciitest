@@ -82,7 +82,7 @@ if( PYTHONINTERP_FOUND )
         #install_asciidoc_filter( plantuml acplantuml.py )
     endif()
 
-    add_custom_target( ${PROJECT_NAME}
+    add_custom_target( ${PROJECT_NAME} ALL
         SOURCES ${${PROJECT_NAME}_FILTER_FILES}
     )
 
