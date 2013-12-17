@@ -93,10 +93,34 @@ def save_cmake_filename(filename):
     #logging.debug("hash_name2: '%s' => '%s'" % (base_name, hash_name))
     return hash_name
 
+def retrieve_asciitest_config_dir():
+    if 'ASCIITEST_INPUT_DIR' in os.environ:
+        logging.info("ASCIITEST_INPUT_DIR: %s", os.environ['ASCIITEST_INPUT_DIR'])
+        if os.path.exists(os.environ['ASCIITEST_INPUT_DIR']):
+            return os.path.exists(os.environ['ASCIITEST_INPUT_DIR'])
+        else:
+            logging.error("ASCIITEST_INPUT_DIR given but %s is not "
+                          "a directory!",
+                          os.path.exists(os.environ['ASCIITEST_INPUT_DIR']))
+    return None
+
+def retrieve_template(directory, namespace, id):
+    filename = os.path.join(directory, "asciidoc_template-%s-%d.txt" %
+                                    (namespace, id))
+    logging.debug("try to insert from file %s", filename)
+    try:
+        logging.debug("text is '%s'", open(filename).read())
+        return open(filename).read()
+    except:
+        return ""
+
+
 def code_filter():
 
     '''This function does all the work.'''
     global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
+
+    _asciitest_config_dir = retrieve_asciitest_config_dir()
 
     test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
     test_list_file = open(test_list_filename, 'a')
