@@ -1,8 +1,15 @@
 example asciitest featured asciidoc file
 ========================================
 
+1. aim and todo
+---------------
 
-1. a minimal python based test script
+* provide and make use of css
+* enable C++ tests
+* provide way to add additional python module paths
+
+
+2. a minimal python based test script
 -------------------------------------
 
 A basic test written in `python` might look like this:
@@ -30,7 +37,8 @@ TEST(s == 1, 'sin(PI/2) should be one' )
 TEST("mama" == "papa", 'mama equals papa')
 ----
 
-2. Istallation
+
+3. Istallation
 --------------
 
 Jenkins
@@ -45,26 +53,64 @@ Jenkins
 * provide pattern `build/Testing/*/Test.xml`
 
 
-3. Implementation details
+4. Implementation details
 -------------------------
 
-In short
-~~~~~~~~
+short version
+~~~~~~~~~~~~~
 * CMake uses asciidoc with asciitest to generate
 ** Test-executables from the doc files
 ** CTest entries used to generate CTest-Tests
 * CTest generates output which can be read by Jenkins
 
-In Long
-~~~~~~~
 
-* CMake-Configuration
-* CMake-Generation
-** generates TEST-*.py output files
-** generates .cmake files
-* CTest-Run
+Long version
+~~~~~~~~~~~~
+
+CMake-Configuration
+^^^^^^^^^^^^^^^^^^^
+
+CMake-Generation
+^^^^^^^^^^^^^^^^
+
+* generates TEST-*.py output files
+* generates .cmake files
+
+CTest-Run
+^^^^^^^^^
+
+.*`env_run.py`*
+***************
+Runs a given python script with a given preconfigured set of variables.
+Goal is to run a given script from the command line or within CTest without
+the need to set any variables.
+
+* by default the path in which `env_run.py` resides will be added
+* will look for a file called `env_run_variables.txt` inside the path of the
+  given script to run and interpret it as dict serialization and add the
+  found values to environment variables.
+
+  {
+  'PWD': "/home/frans/_HOME/1111_ysbox/build/ certificate_web-scitics/",
+  'ENVIRONMENT': [
+                  ("PYTHONPATH", "/home/user/project/src/asciitest_scripts"),
+                  ("PYTHONPATH", "/home/user/project/build/asciitest_output")
+                 ]
+  }
+
+["python"]
+----
+$ env_run.py TEST-foo.bar.py
+----
+***************
+
+
+
 * xunit-conversion
-** see https://github.com/rpavlik/jenkins-ctest-plugin
-** see https://issues.jenkins-ci.org/browse/JENKINS-17884
-** see http://alexott.blogspot.de/2012/03/jenkins-cmakectest.html
+^^^^^^^^^^^^^^^^^^
+* not needed in recent versions of xUnit plugins for jenkins
+
+* see https://github.com/rpavlik/jenkins-ctest-plugin
+* see https://issues.jenkins-ci.org/browse/JENKINS-17884
+* see http://alexott.blogspot.de/2012/03/jenkins-cmakectest.html
 
