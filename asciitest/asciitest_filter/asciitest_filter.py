@@ -95,20 +95,19 @@ def save_cmake_filename(filename):
 
 def retrieve_asciitest_config_dir():
     if 'ASCIITEST_INPUT_DIR' in os.environ:
-        logging.info("ASCIITEST_INPUT_DIR: %s", os.environ['ASCIITEST_INPUT_DIR'])
         if os.path.exists(os.environ['ASCIITEST_INPUT_DIR']):
-            return os.path.exists(os.environ['ASCIITEST_INPUT_DIR'])
+            return os.environ['ASCIITEST_INPUT_DIR']
         else:
             logging.error("ASCIITEST_INPUT_DIR given but %s is not "
                           "a directory!",
-                          os.path.exists(os.environ['ASCIITEST_INPUT_DIR']))
+                          os.environ['ASCIITEST_INPUT_DIR'])
     return None
 
 def retrieve_template(directory, namespace, id):
-    filename = os.path.join(directory, "asciidoc_template-%s-%d.txt" %
-                                    (namespace, id))
-    logging.debug("try to insert from file %s", filename)
     try:
+        filename = os.path.join(directory, "asciidoc_template-%s-%d.txt" %
+                                    (namespace, id))
+        logging.debug("try to insert from file %s", filename)
         logging.debug("text is '%s'", open(filename).read())
         return open(filename).read()
     except:
@@ -121,6 +120,8 @@ def code_filter():
     global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
 
     _asciitest_config_dir = retrieve_asciitest_config_dir()
+
+    logging.debug("ASCIITEST_INPUT_DIR: %s", _asciitest_config_dir)
 
     test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
     test_list_file = open(test_list_filename, 'a')
@@ -191,6 +192,9 @@ def code_filter():
         f.close()
 
     elif language == "python":
+
+        template_2 = retrieve_template(_asciitest_config_dir, 'python', 2)
+
         subtest_counter = 0
 
         test_filename = os.path.join(
@@ -276,9 +280,9 @@ def code_filter():
             f.write( 'import sys'                            + line_sep )
             f.write( ''                                      + line_sep )
 
-            #f.write( 'import AcmeClientPython'               + line_sep )
-            #f.write( 'import sys'                            + line_sep )
-            #f.write( 'import os'                             + line_sep )
+            f.write("# >> TEMPLATE[2]"                       + line_sep )
+            f.write(template_2)
+            f.write("# << TEMPLATE[2]"                       + line_sep )
 
             f.write( ''                                      + line_sep )
             f.write( 'def register_tests():'                 + line_sep )
@@ -478,14 +482,15 @@ if __name__ == "__main__":
     logging.addLevelName( logging.NOTSET,   '(NA)' )
     
     logging.info( "'%s'"% sys.argv )
-    try:
-        main()
+    main()
+#    try:
+#        main()
 
-    except (KeyboardInterrupt, SystemExit):
-        pass
-    except:
-        logging.info("%s: unexpected exit status: %s" %
-            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
+#    except (KeyboardInterrupt, SystemExit):
+#        pass
+#    except:
+#        logging.info("%s: unexpected exit status: %s" %
+#            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
     # exit with previous sys.exit() status or zero if no sys.exit().
     sys.exit(sys.exc_info()[1])
 
