@@ -84,12 +84,14 @@ def run(script_file, args, env):
 
     return _return_value
 
+
 def add_variable(env, variable):
     if not '=' in variable:
         logging.error("given variable definition '%s' is not valid", variable)
         return
     pos = variable.index('=')
     env[variable[:pos]] = variable[pos+1:]
+
 
 if __name__ == "__main__":
     logging.basicConfig(

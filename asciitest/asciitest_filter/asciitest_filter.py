@@ -59,9 +59,6 @@ import string
 import logging
 import hashlib
 from optparse import OptionParser
-from pygments import highlight
-from pygments.lexers import PythonLexer, get_lexer_by_name
-from pygments.formatters import HtmlFormatter
 
 VERSION = '1.0'
 
@@ -112,6 +109,26 @@ def retrieve_template(directory, namespace, id):
         return open(filename).read()
     except:
         return ""
+
+def generate_highlighted_html_text(text, language):
+    try:
+        from pygments import highlight
+        from pygments.lexers import PythonLexer, get_lexer_by_name
+        from pygments.formatters import HtmlFormatter
+
+        lexer = get_lexer_by_name(language, stripall=True)
+        formatter = HtmlFormatter(linenos=True, cssclass="source")
+
+        return highlight(text, lexer, formatter)
+        #highlighted = str(highlight(text, lexer, formatter))
+        #return highlight(text, PythonLexer(), HtmlFormatter(cssclass="highlight"))
+
+    except ImportError:
+        pass
+    except Exception, ex:
+        logging.error("something strange happened while highlighting: %s", ex)
+
+    return text
 
 
 def code_filter():
@@ -299,10 +316,6 @@ def code_filter():
             #if test_type and test_type == "acme_integration_test":
             #    f.write( '    server, server_id, connection_state = AcmeTest.begin_acme_integration_test()' + line_sep )
 
-            #TODO: write something like
-            #for f in (INPUT-client_lib-*):
-            #    cp( f strip(f, "INPUT-client_lib-" )
-
             for l in dynamic_code:
                 f.write( l )
 
@@ -342,21 +355,7 @@ def code_filter():
             f.write( 'if __name__ == "__main__":'                            + line_sep )
             f.write( '    run_tests()'                                       + line_sep )
 
-
-        lexer = get_lexer_by_name("python", stripall=True)
-        formatter = HtmlFormatter(linenos=True, cssclass="source")
-        result = highlight(passthrough_code, lexer, formatter)
-
-        highlighted = str(highlight(passthrough_code, lexer, formatter))
-
-        print highlight(passthrough_code, PythonLexer(), HtmlFormatter(cssclass="highlight"))
-
-        #print highlighted
-        #logging.info("highlighted")
-        #logging.info(highlighted)
-
-    elif language == "python_acme_":
-        pass
+        print generate_highlighted_html_text(passthrough_code, "python")
 
 def main():
     global language, backend, tabsize, test_name, document_name, input_file, output_file, output_dir, test_type
@@ -482,15 +481,14 @@ if __name__ == "__main__":
     logging.addLevelName( logging.NOTSET,   '(NA)' )
     
     logging.info( "'%s'"% sys.argv )
-    main()
-#    try:
-#        main()
+    try:
+        main()
 
-#    except (KeyboardInterrupt, SystemExit):
-#        pass
-#    except:
-#        logging.info("%s: unexpected exit status: %s" %
-#            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
+    except (KeyboardInterrupt, SystemExit):
+        pass
+    except:
+        logging.info("%s: unexpected exit status: %s" %
+            (os.path.basename(sys.argv[0]), sys.exc_info()[1]))
     # exit with previous sys.exit() status or zero if no sys.exit().
     sys.exit(sys.exc_info()[1])
 

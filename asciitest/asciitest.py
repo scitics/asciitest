@@ -32,21 +32,11 @@ def write_result_line( message ):
     global result_file
     if len(message) == 0:
         return
-    sys.stdout.write("[WARNING]: %s" % str( message ) )
+    sys.stdout.write("test-result: %s" % str( message ) )
     if result_file: result_file.write( str( message ) )
     if not (type(message) is str and len(message)>0 and message[-1] == '\n'):
         sys.stdout.write("\n")
         if result_file: result_file.write("\n")
-
-def write_log( message ):
-    global log_file
-    if len(message) == 0:
-        return
-    sys.stdout.write("DEBUG: %s" % str( message ) )
-    if log_file: log_file.write( str( message ) )
-    if not (type(message) is str and len(message)>0 and message[-1] == '\n'):
-        sys.stdout.write("\n")
-        if log_file: log_file.write("\n")
 
 def set_result_file( file_name ):
     global result_file
@@ -88,7 +78,7 @@ def notify_result( counter, result ):
     global last_counter, subtests, base_time
 
     if counter != last_counter + 1:
-        write_log( "[ERROR]: a sub test has been skipped!\n" )
+        logging.error("a sub test has been skipped!")
     try:
         new_time = time.time() * 1000.0
         last_counter = counter
@@ -103,7 +93,8 @@ def notify_result( counter, result ):
             counter, "True" if result else "False" ) )
 
         base_time = time.time() * 1000.0
+
     except Exception, ex:
-        write_log("[ERROR]:" + str(ex))
+        logging.error("some exception occured:", ex)
 
     return result
