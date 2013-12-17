@@ -10,7 +10,10 @@
 # Any reproduction of the software or components thereof without the prior
 # written permission of scitics GmbH is prohibited.
 
-""" runs a python script with additional enviroment variables"""
+"""runs an executable file with additional enviroment variables which can
+   be red from command line or from input file located at same place as
+   executable
+"""
 
 from optparse import OptionParser
 import subprocess
@@ -19,6 +22,7 @@ import sys
 import logging
 import ast
 
+
 def add_path_to_env_variable(env, name, value):
     logging.debug("add to '%s': '%s'", name, value)
     if name in env and env[name].strip() != "":
@@ -26,14 +30,15 @@ def add_path_to_env_variable(env, name, value):
     else:
         env[name] = value
 
-
-def run(script_file):
+def run(script_file, args, env):
 
     _python_exe = sys.executable
 
     _script_file = os.path.abspath(script_file)
 
     _env = os.environ.copy()
+
+    _env.update(env)
 
     env_file_name = os.path.join(
             os.path.dirname(_script_file),
@@ -60,8 +65,13 @@ def run(script_file):
             'PYTHONPATH',
             os.path.dirname(os.path.abspath(__file__)))
 
+    if _script_file.endswith('.py'):
+        _args = [_python_exe, _script_file] + args
+    else:
+        _args = [_script_file] + args
+
     _process = subprocess.Popen(
-        [sys.executable, _script_file],
+        _args,
         # stdout=subprocess.PIPE,
         cwd     = _cwd,
         env     = _env)
@@ -74,7 +84,12 @@ def run(script_file):
 
     return _return_value
 
-
+def add_variable(env, variable):
+    if not '=' in variable:
+        logging.error("given variable definition '%s' is not valid", variable)
+        return
+    pos = variable.index('=')
+    env[variable[:pos]] = variable[pos+1:]
 
 if __name__ == "__main__":
     logging.basicConfig(
@@ -89,22 +104,29 @@ if __name__ == "__main__":
     logging.addLevelName( logging.DEBUG,    '(DD)' )
     logging.addLevelName( logging.NOTSET,   '(NA)' )
 
-    parser = OptionParser()
-    parser.add_option("-p", "--python-executable", dest="python_executable",
-                      help="file to clean up", metavar="FILE")
+    _env = {}
 
-    parser.add_option("-e", "--executable_file", dest="executable_file",
-                      help="file to clean up", metavar="FILE")
+    # we don't use OptionParser here because we want to pass all arguments
+    # coming after the executable name
+    _remaining_args = sys.argv[1:]
+    while (len(_remaining_args) > 0
+       and _remaining_args[0] in ('-p', '--python-executable', '-e', '--set-env')):
 
-    (options, args) = parser.parse_args()
+       if (len(_remaining_args) >= 2
+          and _remaining_args[0] in ('-p', '--python-executable')):
+           _python_executable = _remaining_args[1]
+           _remaining_args = _remaining_args[2:]
 
-    if not options.executable_file and len(args) == 0:
-        print("no script file given")
+       if (len(_remaining_args) >= 2
+          and _remaining_args[0] in ('-e', '--set-env')):
+           add_variable(_env,_remaining_args[1])
+           _remaining_args = _remaining_args[2:]
+
+    if len(_remaining_args) == 0:
+        logging.error("no script file given")
         sys.exit(-1)
 
-    if options.executable_file:
-        _script_file = options.executable_file
-    else:
-        _script_file = args[0]
+    _script_file = _remaining_args[0]
+    _remaining_args = _remaining_args[1:]
 
-    sys.exit(run(_script_file))
+    sys.exit(run(_script_file, _remaining_args, _env))

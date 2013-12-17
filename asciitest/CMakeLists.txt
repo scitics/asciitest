@@ -97,6 +97,8 @@ if( PYTHONINTERP_FOUND )
                     "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
                     "--cleanup" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
             COMMAND ${PYTHON_EXECUTABLE}
+                   "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
+                    -e "ASCIITEST_INPUT_DIR=${CMAKE_SOURCE_DIR}/asciitest_files"
                     ${ASCIIDOC_EXECUTABLE}
                     -a max-width=1024px
                     -a linkcss
