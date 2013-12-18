@@ -4,6 +4,9 @@ example asciitest featured asciidoc file
 1. aim and todo
 ---------------
 
+* supply template suffix via optional parameter
+* generate env_run_variables.txt
+* solve dependency problem with generated .cmake files
 * provide and make use of css
 * enable C++ tests
 * provide way to add additional python module paths

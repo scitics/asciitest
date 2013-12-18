@@ -146,7 +146,7 @@ def code_filter():
     line_sep = os.linesep
 
     if language == "text":
-        filename = test_name
+        filename = os.path.join(output_dir, test_name)
         logging.info( "create a text file called '%s'", filename )
         f = open( filename, 'w' )
         #TODO: create files called INPUT-<test-file-name>-<test-file>

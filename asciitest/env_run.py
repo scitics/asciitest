@@ -53,6 +53,8 @@ def run(script_file, args, env):
                 add_path_to_env_variable(_env, key, value)
         if 'PWD' in values:
             _cwd = values['PWD']
+            # [todo] - test for existence
+
     except IOError, ex:
         logging.warning("could not load environment variable file '%s'. "
                         "error was '%s'",
@@ -70,17 +72,21 @@ def run(script_file, args, env):
     else:
         _args = [_script_file] + args
 
-    _process = subprocess.Popen(
-        _args,
-        # stdout=subprocess.PIPE,
-        cwd     = _cwd,
-        env     = _env)
+    try:
+        _process = subprocess.Popen(
+            _args,
+            # stdout=subprocess.PIPE,
+            cwd     = _cwd,
+            env     = _env)
+        _asciidoc_output = _process.communicate()[0]
+        # print _asciidoc_output
+        _return_value = _process.returncode
+    except OSError, ex:
+        logging.error("could not start process from args='%s', cwd='%s'",
+                      _args, _cwd)
+        logging.error("error was '%s'", ex)
+        _return_value = -1
 
-    _asciidoc_output = _process.communicate()[0]
-
-    # print _asciidoc_output
-
-    _return_value = _process.returncode
 
     return _return_value
 

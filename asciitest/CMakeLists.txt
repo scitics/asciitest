@@ -113,7 +113,7 @@ if( PYTHONINTERP_FOUND )
 #                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
 #                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
             # re-run cmake since .cmake files might have been generated
-            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
+#            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
 
             MAIN_DEPENDENCY
                     ${infile}
