@@ -12,6 +12,7 @@
 
 import sys
 import time
+import logging
 
 last_counter = -1
 result_file = None
@@ -91,10 +92,15 @@ def notify_result( counter, result ):
             counter, new_time - base_time ) )
         write_result_line( "self.subtests[%d].test_ok = %s" % (
             counter, "True" if result else "False" ) )
+        write_result_line( "self.subtests[%d].condition = '%s'" % (
+            counter, subtests[counter].condition ) )
+        write_result_line( "self.subtests[%d].description = '%s'" % (
+            counter, subtests[counter].description ) )
+        #write_result_line( str(self.subtests[counter].__dict__) )
 
         base_time = time.time() * 1000.0
 
     except Exception, ex:
-        logging.error("some exception occured:", ex)
+        logging.error("some exception occured: '%s'", ex)
 
     return result
