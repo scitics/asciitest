@@ -21,6 +21,20 @@ if( PYTHONINTERP_FOUND )
 
     file(MAKE_DIRECTORY ${CONFIG_ASCIITEST_OUTDIR})
 
+    function(run_env_add_variable name value)
+        execute_process(
+            COMMAND "${PYTHON_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
+                    "--set-variable" "${name}=${value}" )
+    endfunction()
+
+    function(run_env_set_pwd value)
+        execute_process(
+            COMMAND "${PYTHON_EXECUTABLE}"
+                    "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
+                    "--set-pwd" "${value}" )
+    endfunction()
+
     # create a file containing all input files - we'll need it later to
     # get rid of tests which do not exist any more
     set(input_files_file "${CONFIG_ASCIITEST_OUTDIR}/asciitest-all_input_files.txt" )
@@ -42,8 +56,6 @@ if( PYTHONINTERP_FOUND )
     file( GLOB_RECURSE ${PROJECT_NAME}_FILTER_FILES plugins/* )
 
     function(install_asciidoc_filter filter_name filter_dir main_dependency)
-
-        #message("install_asciidoc_filter( filter='${filter_name}' main_dependency='${main_dependency}'")
 
         file( WRITE "${CMAKE_BINARY_DIR}/asciidoc-install-${filter_name}-plugin.cmake"
            "execute_process(COMMAND
@@ -112,7 +124,7 @@ if( PYTHONINTERP_FOUND )
 #            COMMAND ${PYTHON_EXECUTABLE}
 #                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
 #                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
-            # re-run cmake since .cmake files might have been generated
+#            # re-run cmake since .cmake files might have been generated
 #            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
 
             MAIN_DEPENDENCY
