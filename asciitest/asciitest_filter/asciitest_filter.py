@@ -307,11 +307,16 @@ def code_filter():
             f.write( 'import asciitest'                      + line_sep )
             f.write( 'from optparse import OptionParser'     + line_sep )
             f.write( 'import sys'                            + line_sep )
+            f.write( 'import traceback'                      + line_sep )
+            f.write( 'import logging'                        + line_sep )
+
             f.write( ''                                      + line_sep )
 
-            f.write("# >> TEMPLATE[2]"                       + line_sep )
-            f.write(template_2)
-            f.write("# << TEMPLATE[2]"                       + line_sep )
+            f.write( ''                                      + line_sep )
+            f.write( '# >> TEMPLATE[2]'                      + line_sep )
+            f.write( template_2)
+            f.write( '# << TEMPLATE[2]'                      + line_sep )
+            f.write( ''                                      + line_sep )
 
             f.write( ''                                      + line_sep )
             f.write( 'def register_tests():'                 + line_sep )
@@ -325,16 +330,20 @@ def code_filter():
             f.write( 'def run_subtests():'                   + line_sep )
             f.write( '    all_tests_succeeded = True'        + line_sep )
 
+            f.write(''                                       + line_sep )
             f.write("# >> TEMPLATE[3]"                       + line_sep )
             f.write(template_3)
             f.write("# << TEMPLATE[3]"                       + line_sep )
+            f.write(''                                       + line_sep )
 
             for l in dynamic_code:
                 f.write( l )
 
+            f.write(''                                       + line_sep )
             f.write("# >> TEMPLATE[4]"                       + line_sep )
             f.write(template_4)
             f.write("# << TEMPLATE[4]"                       + line_sep )
+            f.write(''                                       + line_sep )
 
             f.write( '    return all_tests_succeeded'        + line_sep )
             f.write( '    pass'                              + line_sep )
@@ -355,19 +364,30 @@ def code_filter():
             f.write( '    if options.acme_binary: asciitest.set_acme_binary( options.acme_binary )'             + line_sep )
             f.write( '    asciitest.start_tests("%s","%s")'
                                % (document_name, test_name)  + line_sep )
-            f.write( '    register_tests()'                                  + line_sep )
-            f.write( '    ret_val = 0'                                       + line_sep )
-            f.write( '    try:'                                              + line_sep )
-            f.write( '        ret_val = 0 if run_subtests() else -1'         + line_sep )
-            f.write( '    except Exception, ex:'                             + line_sep )
-            f.write( '        print "Error executing test"'                  + line_sep )
-            f.write( '        print ex'                                      + line_sep )
-            f.write( '        ret_val = -1'                                  + line_sep )
-            f.write( '    asciitest.finalize_tests()'                        + line_sep )
-            f.write( '    sys.exit(ret_val)'                                 + line_sep )
-            f.write( ''                                                      + line_sep )
-            f.write( 'if __name__ == "__main__":'                            + line_sep )
-            f.write( '    run_tests()'                                       + line_sep )
+            f.write( '    register_tests()'                                              + line_sep )
+            f.write( '    ret_val = 0'                                                   + line_sep )
+            f.write( '    try:'                                                          + line_sep )
+            f.write( '        ret_val = 0 if run_subtests() else -1'                     + line_sep )
+            f.write( '    except Exception, ex:'                                         + line_sep )
+            f.write( '        logging.error("error executing test")'                     + line_sep )
+            f.write( '        logging.error(str(traceback.format_exc()))'                + line_sep )
+            f.write( '        ret_val = -1'                                              + line_sep )
+            f.write( '    asciitest.finalize_tests()'                                    + line_sep )
+            f.write( '    sys.exit(ret_val)'                                             + line_sep )
+            f.write( ''                                                                  + line_sep )
+            f.write( 'if __name__ == "__main__":'                                        + line_sep )
+            f.write( '    logging.basicConfig('                                          + line_sep )
+            f.write( '        format="%(asctime)s [test] %(levelname)s %(message)s",'    + line_sep )
+            f.write( '        datefmt="%y%m%d-%H%M%S",'                                  + line_sep )
+            f.write( '        level=logging.DEBUG)'                                      + line_sep )
+            f.write( '    logging.addLevelName( logging.CRITICAL, "(CRITICAL)" )'        + line_sep )
+            f.write( '    logging.addLevelName( logging.ERROR,    "(EE)" )'              + line_sep )
+            f.write( '    logging.addLevelName( logging.WARNING,  "(WW)" )'              + line_sep )
+            f.write( '    logging.addLevelName( logging.INFO,     "(II)" )'              + line_sep )
+            f.write( '    logging.addLevelName( logging.DEBUG,    "(DD)" )'              + line_sep )
+            f.write( '    logging.addLevelName( logging.NOTSET,   "(NA)" )'              + line_sep )
+            f.write( ''                                                                  + line_sep )
+            f.write( '    run_tests()'                                                   + line_sep )
 
         print generate_highlighted_html_text(passthrough_code, "python")
 
@@ -483,7 +503,7 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(
-        format='%(asctime)s %(levelname)s %(message)s',
+        format='%(asctime)s [asciitest_filter] %(levelname)s %(message)s',
         datefmt="%y%m%d-%H%M%S")
     logging.getLogger().setLevel(logging.DEBUG)
     
