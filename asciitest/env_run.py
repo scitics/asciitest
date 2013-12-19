@@ -47,13 +47,14 @@ def run(script_file, args, env):
     _cwd = os.getcwd()
 
     try:
-        values = ast.literal_eval(open(env_file_name).read())
-        if 'ENVIRONMENT' in values:
-            for key, value in values['ENVIRONMENT']:
-                add_path_to_env_variable(_env, key, value)
-        if 'PWD' in values:
-            _cwd = values['PWD']
-            # [todo] - test for existence
+        if not os.path.dirname(_script_file) == "/usr/bin":
+            values = ast.literal_eval(open(env_file_name).read())
+            if 'ENVIRONMENT' in values:
+                for key, value in values['ENVIRONMENT']:
+                    add_path_to_env_variable(_env, key, value)
+            if 'PWD' in values:
+                _cwd = values['PWD']
+                # [todo] - test for existence
 
     except IOError, ex:
         logging.warning("could not load environment variable file '%s'. "
