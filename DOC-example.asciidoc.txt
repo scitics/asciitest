@@ -17,7 +17,7 @@ example asciitest featured asciidoc file
 
 A basic test written in `python` might look like this:
 
-["asciitest", "example_test", "python", type="hello"]
+["asciitest", "example_test", "python", type="special_test"]
 ----
 import math
 s = math.sin(0)

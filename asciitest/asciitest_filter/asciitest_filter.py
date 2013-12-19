@@ -100,7 +100,17 @@ def retrieve_asciitest_config_dir():
                           os.environ['ASCIITEST_INPUT_DIR'])
     return None
 
-def retrieve_template(directory, namespace, id):
+def retrieve_template(directory, namespace, id, subname):
+    try:
+        if subname and subname != "":
+            filename = os.path.join(directory, "asciidoc_template-%s-%d-%s.txt" %
+                                        (namespace, id, subname))
+            logging.debug("try to insert from file %s", filename)
+            logging.debug("text is '%s'", open(filename).read())
+            return open(filename).read()
+    except:
+        pass
+
     try:
         filename = os.path.join(directory, "asciidoc_template-%s-%d.txt" %
                                     (namespace, id))
@@ -210,7 +220,9 @@ def code_filter():
 
     elif language == "python":
 
-        template_2 = retrieve_template(_asciitest_config_dir, 'python', 2)
+        template_2 = retrieve_template(_asciitest_config_dir, 'python', 2, test_type)
+        template_3 = retrieve_template(_asciitest_config_dir, 'python', 3, test_type)
+        template_4 = retrieve_template(_asciitest_config_dir, 'python', 4, test_type)
 
         subtest_counter = 0
 
@@ -313,14 +325,16 @@ def code_filter():
             f.write( 'def run_subtests():'                   + line_sep )
             f.write( '    all_tests_succeeded = True'        + line_sep )
 
-            #if test_type and test_type == "acme_integration_test":
-            #    f.write( '    server, server_id, connection_state = AcmeTest.begin_acme_integration_test()' + line_sep )
+            f.write("# >> TEMPLATE[3]"                       + line_sep )
+            f.write(template_3)
+            f.write("# << TEMPLATE[3]"                       + line_sep )
 
             for l in dynamic_code:
                 f.write( l )
 
-            #if test_type and test_type == "acme_integration_test":
-            #    f.write( '    AcmeTest.end_acme_integration_test(server, server_id, connection_state)' + line_sep )
+            f.write("# >> TEMPLATE[4]"                       + line_sep )
+            f.write(template_4)
+            f.write("# << TEMPLATE[4]"                       + line_sep )
 
             f.write( '    return all_tests_succeeded'        + line_sep )
             f.write( '    pass'                              + line_sep )
