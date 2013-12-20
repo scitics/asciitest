@@ -41,11 +41,40 @@ TEST("mama" == "papa", 'mama equals papa')
 ----
 
 
-3. Istallation
---------------
+3. Installation
+---------------
 
-Jenkins
-~~~~~~~
+Configure your build
+~~~~~~~~~~~~~~~~~~~~
+
+include asciitest submodule
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+* via git
+* add in root cmaklists.txt
+
+provide configuration
+^^^^^^^^^^^^^^^^^^^^^
+* templates
+* additional files like Python modules
+
+Configure CMake variables
+^^^^^^^^^^^^^^^^^^^^^^^^^
+* `CONFIG_ASCIITEST_OUTDIR`
+* `CONFIG_ASCIITEST_PWD`
+* `CONFIG_ASCIITEST_CONFIG_DIR`
+
+Write docs with tests
+^^^^^^^^^^^^^^^^^^^^^
+* explain the asciitest block
+
+
+Run the tests
+~~~~~~~~~~~~~
+* ctest
+* env_run
+
+Configure Jenkins
+~~~~~~~~~~~~~~~~~
 * configure test after build:
 ----
   cd $WORKSPACE/build
