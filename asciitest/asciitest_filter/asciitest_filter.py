@@ -170,7 +170,7 @@ def code_filter():
 
         test_filename   = "../test/include/TEST-%s-%s.cpp"%(document_name, test_name)
         result_filename = "RESULT-%s-%s.csv"%(document_name, test_name)
-        logging.info( "create a python script called '%s'" % test_filename )
+        logging.info( "create a c++ file called '%s'" % test_filename )
         f = open( test_filename, 'w' )
         f.write( '/** automatically generated test file */ ' + line_sep )
         f.write( '#include <tests/TestEnvironment.h>'          + line_sep )
@@ -233,12 +233,12 @@ def code_filter():
         # [todo] - abstract information should be written here - generate
         #          cmake stuff outside
         test_list_file.write(
-            'add_test(%s_%s "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
+            'add_test(asciitest.%s_%s "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
                 document_name, test_name, test_filename))
 
         logging.info( "create a python script called '%s'", test_filename )
-        logging.info( "filename hash '%s'", save_cmake_filename(input_file) )
-        logging.info( "output dir '%s'", output_dir)
+        logging.debug( "filename hash '%s'", save_cmake_filename(input_file) )
+        logging.debug( "output dir '%s'", output_dir)
 
         test_defs = []
         dynamic_code = []
@@ -280,7 +280,7 @@ def code_filter():
 
                 test_description = guts[3]
                 #test_description = line[line.find(',') + 1 :line.find(')')].strip(' \'\"')
-                logging.info("added a test for %s" % test_description)
+                logging.debug("added a test for %s" % test_description)
 
                 test_defs.append( 'asciitest.register_subtest( %d, "%s",'
                     %  (subtest_counter,
@@ -505,7 +505,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s [asciitest_filter] %(levelname)s %(message)s',
         datefmt="%y%m%d-%H%M%S")
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(logging.WARNING)
     
     logging.addLevelName( logging.CRITICAL, '(CRITICAL)' )
     logging.addLevelName( logging.ERROR,    '(EE)' )
@@ -514,7 +514,7 @@ if __name__ == "__main__":
     logging.addLevelName( logging.DEBUG,    '(DD)' )
     logging.addLevelName( logging.NOTSET,   '(NA)' )
     
-    logging.info( "'%s'"% sys.argv )
+    logging.debug( "'%s'"% sys.argv )
     try:
         main()
 
