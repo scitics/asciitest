@@ -177,6 +177,7 @@ if( PYTHONINTERP_FOUND )
     add_custom_command(
         TARGET ctest_run
             COMMENT "run CTest executable ${CTEST_EXECUTABLE} s ${CTEST_EXECUTABLE}"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMAND "ctest" "-T" "test"
                     "--output-on-failure" "--no-compress-output"
     )
@@ -185,6 +186,7 @@ if( PYTHONINTERP_FOUND )
     add_custom_command(
         TARGET ctest_to_xunit
             COMMENT "generate xunit files from CTest output"
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
             COMMAND ${PYTHON_EXECUTABLE}
                     "${ASCIITEST_SOURCE_DIR}/cmake2xunit.py"
                     "-d" "${CMAKE_BINARY_DIR}"
