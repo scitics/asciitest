@@ -11,7 +11,7 @@
 # written permission of scitics GmbH is prohibited.
 
 """runs an executable file with additional enviroment variables which can
-   be red from command line or from input file located at same place as
+   be read from command line or from input file located at same place as
    executable
 """
 
@@ -21,6 +21,7 @@ import os
 import sys
 import logging
 import ast
+import pprint
 
 
 def add_path_to_env_variable(env, name, value):
@@ -29,6 +30,94 @@ def add_path_to_env_variable(env, name, value):
         env[name] += os.pathsep + value
     else:
         env[name] = value
+
+
+def read_config(directory):
+
+    try:
+        _env_file_name = os.path.join(directory, "env_run_variables.txt")
+
+        _values = {'PWD'        : os.getcwd(),
+                   'ENVIRONMENT': ()}
+
+        if not os.path.dirname(directory) == "/usr/bin":
+            _values.update( ast.literal_eval(open(_env_file_name).read()) )
+        else:
+            _values = {}
+
+        if not 'ENVIRONMENT' in _values:
+            _values['ENVIRONMENT'] = ()
+        if not 'PWD' in _values:
+            # [todo] - test for existence
+            _values['PWD'] = os.getcwd()
+
+    except IOError, ex:
+        logging.warning("could not load environment variable file '%s'. "
+                        "error was '%s'",
+                        _env_file_name, ex)
+    except SyntaxError, ex:
+        logging.warning("syntax error in environment variable file. "
+                        "error was '%s'", ex)
+    except Exception, ex:
+        logging.error("exception occured in read_config(): '%s'", ex)
+
+    return _values
+
+
+def write_config(directory, values):
+
+    _env_file_name = os.path.join(directory, "env_run_variables.txt")
+
+    try:
+        _serialized_config = pprint.pformat(values) + '\n'
+        values = open(_env_file_name, 'w').write(_serialized_config)
+
+    except Exception, ex:
+        logging.error("could not write environment variable file '%s'. "
+                       "error was '%s'",
+                       _env_file_name, ex)
+
+
+def configure_variable(directory, key_value):
+    try:
+
+        if not '=' in key_value:
+            logging.error("given variable definition '%s' is not valid", key_value)
+            return
+
+        pos = key_value.index('=')
+        key, value = key_value[:pos], key_value[pos+1:]
+
+        values = read_config(directory)
+
+        logging.debug("configure new variable value '%s': '%s'", key, value)
+
+        variable_definitions = set(values['ENVIRONMENT'])
+        variable_definitions.add((key, value))
+        values['ENVIRONMENT'] = list(variable_definitions)
+
+        write_config(directory, values)
+
+    except Exception, ex:
+        logging.error("exception occured in configure_variable(): '%s'", ex)
+
+
+def configure_pwd(directory, pwd):
+
+    try:
+        values = read_config(directory)
+
+        _pwd = os.path.abspath(pwd)
+
+        logging.debug("configure new pwd = '%s'", _pwd)
+
+        values['PWD'] = _pwd
+
+        write_config(directory, values)
+
+    except Exception, ex:
+        logging.error("exception occured in configure_pwd(): '%s'", ex)
+
 
 def run(script_file, args, env):
 
@@ -40,30 +129,14 @@ def run(script_file, args, env):
 
     _env.update(env)
 
-    env_file_name = os.path.join(
-            os.path.dirname(_script_file),
-            "env_run_variables.txt")
+    _env_file_dir = os.path.dirname(_script_file)
 
-    _cwd = os.getcwd()
+    _env_values = read_config(_env_file_dir)
 
-    try:
-        if not os.path.dirname(_script_file) == "/usr/bin":
-            values = ast.literal_eval(open(env_file_name).read())
-            if 'ENVIRONMENT' in values:
-                for key, value in values['ENVIRONMENT']:
-                    add_path_to_env_variable(_env, key, value)
-            if 'PWD' in values:
-                _cwd = values['PWD']
-                # [todo] - test for existence
+    for key, value in _env_values['ENVIRONMENT']:
+        add_path_to_env_variable(_env, key, value)
 
-    except IOError, ex:
-        logging.warning("could not load environment variable file '%s'. "
-                        "error was '%s'",
-                        env_file_name, ex)
-    except SyntaxError, ex:
-        logging.warning("syntax error in environment variable file. "
-                        "error was '%s'", ex)
-
+    # add this files directory, too
     add_path_to_env_variable( _env,
             'PYTHONPATH',
             os.path.dirname(os.path.abspath(__file__)))
@@ -74,20 +147,21 @@ def run(script_file, args, env):
         _args = [_script_file] + args
 
     try:
+
         _process = subprocess.Popen(
             _args,
             # stdout=subprocess.PIPE,
-            cwd     = _cwd,
+            cwd     = _env_values['PWD'],
             env     = _env)
+
         _asciidoc_output = _process.communicate()[0]
         # print _asciidoc_output
         _return_value = _process.returncode
     except OSError, ex:
         logging.error("could not start process from args='%s', cwd='%s'",
-                      _args, _cwd)
+                      _args, _env_values['PWD'])
         logging.error("error was '%s'", ex)
         _return_value = -1
-
 
     return _return_value
 
@@ -114,12 +188,41 @@ if __name__ == "__main__":
     logging.addLevelName( logging.NOTSET,   '(NA)' )
 
     _env = {}
+    _config_output_dir = None
 
     # we don't use OptionParser here because we want to pass all arguments
     # coming after the executable name
     _remaining_args = sys.argv[1:]
+
     while (len(_remaining_args) > 0
-       and _remaining_args[0] in ('-p', '--python-executable', '-e', '--set-env')):
+       and _remaining_args[0] in ('-p', '--python-executable',
+                                  '-e', '--set-env',
+                                  '--configure-variable',
+                                  '--configure-pwd',
+                                  '--config-output-dir')):
+
+       if (len(_remaining_args) >= 2
+           and _remaining_args[0] in ('--config-output-dir')):
+           # in case a config output directory has been provided we save
+           # it for later use
+           _config_output_dir = _remaining_args[1]
+           _remaining_args = _remaining_args[2:]
+
+       if (len(_remaining_args) >= 2
+           and _remaining_args[0] in ('--configure-variable')):
+           if not _config_output_dir:
+               logging.error("config output directory not set yet")
+               sys.exit(-1)
+           configure_variable(_config_output_dir, _remaining_args[1])
+           _remaining_args = _remaining_args[2:]
+
+       if (len(_remaining_args) >= 2
+           and _remaining_args[0] in ('--configure-pwd')):
+           if not _config_output_dir:
+               logging.error("config output directory not set yet")
+               sys.exit(-1)
+           configure_pwd(_config_output_dir, _remaining_args[1])
+           _remaining_args = _remaining_args[2:]
 
        if (len(_remaining_args) >= 2
           and _remaining_args[0] in ('-p', '--python-executable')):
@@ -132,8 +235,14 @@ if __name__ == "__main__":
            _remaining_args = _remaining_args[2:]
 
     if len(_remaining_args) == 0:
-        logging.error("no script file given")
-        sys.exit(-1)
+        if _config_output_dir:
+            # in case env_run was called in order to set values
+            # everything is ok and we can quit
+            sys.exit(0)
+        else:
+            # otherwise the user forgot something important
+            logging.error("no script file given")
+            sys.exit(-1)
 
     _script_file = _remaining_args[0]
     _remaining_args = _remaining_args[1:]
