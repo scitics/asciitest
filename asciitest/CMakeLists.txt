@@ -25,6 +25,9 @@ if( PYTHONINTERP_FOUND )
     set(CONFIG_ASCIITEST_PWD "${CMAKE_BINARY_DIR}"
         CACHE STRING
         "directory in which asciitest generated tests are being run")
+    set(ASCIITEST_CONFIG_DIR "${CMAKE_SOURCE_DIR}/asciitest_config"
+        CACHE PATH
+        "directory with asciitest templates and runtime scripts")
 
     file(MAKE_DIRECTORY ${CONFIG_ASCIITEST_OUTDIR})
 
@@ -123,7 +126,7 @@ if( PYTHONINTERP_FOUND )
                     "--cleanup" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
             COMMAND ${PYTHON_EXECUTABLE}
                    "${ASCIITEST_SOURCE_DIR}/env_run.py"
-                    -e "ASCIITEST_INPUT_DIR=${CMAKE_SOURCE_DIR}/asciitest_config"
+                    -e "ASCIITEST_INPUT_DIR=${ASCIITEST_CONFIG_DIR}"
                     ${ASCIIDOC_EXECUTABLE}
                     -a max-width=1024px
                     -a linkcss
@@ -165,6 +168,18 @@ if( PYTHONINTERP_FOUND )
         create_doc_html( ${var} )
     endforeach()
 
+    add_custom_target( ctest_run )
+    add_custom_command(
+        TARGET ctest_run
+            COMMENT "re-run cmake to register tests"
+            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
+    )
+    add_custom_command(
+        TARGET ctest_run
+            COMMENT "run CTest executable ${CTEST_EXECUTABLE} s ${CTEST_EXECUTABLE}"
+            COMMAND "ctest" "-T" "test"
+                    "--output-on-failure" "--no-compress-output"
+    )
 
     add_custom_target( ctest_to_xunit )
     add_custom_command(
