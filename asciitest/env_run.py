@@ -40,7 +40,7 @@ def read_config(directory, warn_if_file_not_existent=True):
         _values = {'PWD'        : os.getcwd(),
                    'ENVIRONMENT': ()}
 
-        if not os.path.dirname(directory) == "/usr/bin":
+        if not os.path.dirname(directory).startswith("/usr"):
             _values.update( ast.literal_eval(open(_env_file_name).read()) )
         else:
             _values = {}
