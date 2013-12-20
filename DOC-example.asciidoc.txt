@@ -106,7 +106,7 @@ the need to set any variables.
 $ env_run.py TEST-foo.bar.py
 ----
 ***************
-
+test1
 
 
 * xunit-conversion
