@@ -32,7 +32,7 @@ def add_path_to_env_variable(env, name, value):
         env[name] = value
 
 
-def read_config(directory):
+def read_config(directory, warn_if_file_not_existent=True):
 
     try:
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
@@ -52,9 +52,10 @@ def read_config(directory):
             _values['PWD'] = os.getcwd()
 
     except IOError, ex:
-        logging.warning("could not load environment variable file '%s'. "
-                        "error was '%s'",
-                        _env_file_name, ex)
+        if warn_if_file_not_existent:
+            logging.warning("could not load environment variable file '%s'. "
+                            "error was '%s'",
+                            _env_file_name, ex)
     except SyntaxError, ex:
         logging.warning("syntax error in environment variable file. "
                         "error was '%s'", ex)
@@ -88,7 +89,7 @@ def configure_variable(directory, key_value):
         pos = key_value.index('=')
         key, value = key_value[:pos], key_value[pos+1:]
 
-        values = read_config(directory)
+        values = read_config(directory, warn_if_file_not_existent=False)
 
         logging.debug("configure new variable value '%s': '%s'", key, value)
 
@@ -105,7 +106,7 @@ def configure_variable(directory, key_value):
 def configure_pwd(directory, pwd):
 
     try:
-        values = read_config(directory)
+        values = read_config(directory, warn_if_file_not_existent=False)
 
         _pwd = os.path.abspath(pwd)
 
@@ -178,7 +179,7 @@ if __name__ == "__main__":
     logging.basicConfig(
         format='%(asctime)s [env_run] %(levelname)s %(message)s',
         datefmt="%y%m%d-%H%M%S",
-        level=logging.DEBUG)
+        level=logging.WARNING)
 
     logging.addLevelName( logging.CRITICAL, '(CRITICAL)' )
     logging.addLevelName( logging.ERROR,    '(EE)' )
@@ -189,6 +190,8 @@ if __name__ == "__main__":
 
     _env = {}
     _config_output_dir = None
+
+    logging.debug( "started with %s", str(sys.argv) )
 
     # we don't use OptionParser here because we want to pass all arguments
     # coming after the executable name
