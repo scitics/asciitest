@@ -12,28 +12,41 @@ cmake_minimum_required(VERSION 2.8)
 # [todo] - make configurable
 file( GLOB_RECURSE ${PROJECT_NAME}_FILES  ${CMAKE_SOURCE_DIR}/DOC*.txt )
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/" )
+set(ASCIITEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "" FORCE)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${ASCIITEST_SOURCE_DIR}/CMakeModules/" )
 find_package(Asciidoc)
 find_package(PythonInterp)
 
 if( PYTHONINTERP_FOUND )
-    set(CONFIG_ASCIITEST_OUTDIR "${CMAKE_BINARY_DIR}/documentation")
+    set(CONFIG_ASCIITEST_OUTDIR "${CMAKE_BINARY_DIR}/documentation"
+        CACHE STRING
+        "output directory for asciitest generated files")
+    set(CONFIG_ASCIITEST_PWD "${CMAKE_BINARY_DIR}"
+        CACHE STRING
+        "directory in which asciitest generated tests are being run")
 
     file(MAKE_DIRECTORY ${CONFIG_ASCIITEST_OUTDIR})
 
     function(run_env_add_variable name value)
+        MESSAGE( STATUS "env_run: add to ${name}: '${value}'")
         execute_process(
             COMMAND "${PYTHON_EXECUTABLE}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
-                    "--set-variable" "${name}=${value}" )
+                    "${ASCIITEST_SOURCE_DIR}/env_run.py"
+                    "--config-output-dir" "${CONFIG_ASCIITEST_OUTDIR}"
+                    "--configure-variable" "${name}=${value}" )
     endfunction()
 
     function(run_env_set_pwd value)
+        MESSAGE( STATUS "env_run: set pwd: '${value}'")
         execute_process(
             COMMAND "${PYTHON_EXECUTABLE}"
-                    "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
-                    "--set-pwd" "${value}" )
+                    "${ASCIITEST_SOURCE_DIR}/env_run.py"
+                    "--config-output-dir" "${CONFIG_ASCIITEST_OUTDIR}"
+                    "--configure-pwd" "${value}" )
     endfunction()
+
+    run_env_set_pwd("${CONFIG_ASCIITEST_PWD}")
 
     # create a file containing all input files - we'll need it later to
     # get rid of tests which do not exist any more
@@ -47,7 +60,7 @@ if( PYTHONINTERP_FOUND )
     file(WRITE "${CMAKE_BINARY_DIR}/DartConfiguration.tcl")
 
     execute_process(COMMAND ${PYTHON_EXECUTABLE}
-                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
+                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
                     "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR} )
 
     include("${CONFIG_ASCIITEST_OUTDIR}/asciitest-master.cmake")
@@ -90,7 +103,7 @@ if( PYTHONINTERP_FOUND )
     if( CONFIG_INSTALL_EXTRA_ASCIIDOC_FILTERS )
         set( filter_dependencies ""  )
         # [todo] - make configurable
-        install_asciidoc_filter( asciitest "${CMAKE_CURRENT_SOURCE_DIR}/asciitest_filter" asciitest_filter.py )
+        install_asciidoc_filter( asciitest "${ASCIITEST_SOURCE_DIR}/asciitest_filter" asciitest_filter.py )
         #install_asciidoc_filter( plantuml acplantuml.py )
     endif()
 
@@ -106,10 +119,10 @@ if( PYTHONINTERP_FOUND )
         add_custom_command(
             OUTPUT  ${outvar_html}
             COMMAND ${PYTHON_EXECUTABLE}
-                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
+                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
                     "--cleanup" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
             COMMAND ${PYTHON_EXECUTABLE}
-                   "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py"
+                   "${ASCIITEST_SOURCE_DIR}/env_run.py"
                     -e "ASCIITEST_INPUT_DIR=${CMAKE_SOURCE_DIR}/asciitest_config"
                     ${ASCIIDOC_EXECUTABLE}
                     -a max-width=1024px
@@ -122,7 +135,7 @@ if( PYTHONINTERP_FOUND )
                     --out-file ${outvar_html}
                     ${infile}
 #            COMMAND ${PYTHON_EXECUTABLE}
-#                    "${CMAKE_CURRENT_SOURCE_DIR}/asciitest-cmake_helpers.py"
+#                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
 #                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
 #            # re-run cmake since .cmake files might have been generated
 #            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
@@ -158,7 +171,7 @@ if( PYTHONINTERP_FOUND )
         TARGET ctest_to_xunit
             COMMENT "generate xunit files from CTest output"
             COMMAND ${PYTHON_EXECUTABLE}
-                    "${CMAKE_CURRENT_SOURCE_DIR}/cmake2xunit.py"
+                    "${ASCIITEST_SOURCE_DIR}/cmake2xunit.py"
                     "-d" "${CMAKE_BINARY_DIR}"
                     "-o" "${CMAKE_BINARY_DIR}/xunit_test_output.xml"
     )

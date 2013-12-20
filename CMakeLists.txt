@@ -36,6 +36,8 @@ endif()
 
 add_subdirectory(asciitest)
 
+run_env_add_variable("PYTHONPATH" "${CMAKE_BINARY_DIR}")
+
 file( GLOB_RECURSE ${PROJECT_NAME}_FILES
     README.md
     "${CMAKE_CURRENT_SOURCE_DIR}/*.py"
@@ -47,7 +49,6 @@ add_executable(example example.cpp
     ${${PROJECT_NAME}_FILES}
 )
 
-add_dependencies(example asciitest)
 
 add_test(generic_cpp_success example)
 add_test(generic_cpp_failure example failure)
