@@ -34,9 +34,11 @@ if(NOT ASCIIDOC_EXECUTABLE)
     find_package(Asciidoc REQUIRED)
 endif()
 
-add_subdirectory(asciitest)
-
-run_env_add_variable("PYTHONPATH" "${CMAKE_BINARY_DIR}")
+option(CONFIG_HAVE_ASCIIDOC ON "let asciidoc with asciitest create docs and tests")
+if(CONFIG_HAVE_ASCIIDOC)
+    add_subdirectory(asciitest)
+    run_env_add_variable("PYTHONPATH" "${CMAKE_BINARY_DIR}")
+endif()
 
 file( GLOB_RECURSE ${PROJECT_NAME}_FILES
     README.md
