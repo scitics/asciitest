@@ -33,7 +33,8 @@ def add_path_to_env_variable(env, name, value):
 
 
 def read_config(directory, warn_if_file_not_existent=True):
-
+    logging.error("using config dir: " + directory)
+ 
     try:
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
 
@@ -120,7 +121,7 @@ def configure_pwd(directory, pwd):
         logging.error("exception occured in configure_pwd(): '%s'", ex)
 
 
-def run(script_file, args, env):
+def run(script_file, _config_output_dir, args, env):
 
     _python_exe = sys.executable
 
@@ -130,8 +131,8 @@ def run(script_file, args, env):
 
     _env.update(env)
 
-    _env_file_dir = os.path.dirname(_script_file)
-
+    _env_file_dir = _config_output_dir
+    
     _env_values = read_config(_env_file_dir)
 
     for key, value in _env_values['ENVIRONMENT']:
@@ -250,4 +251,4 @@ if __name__ == "__main__":
     _script_file = _remaining_args[0]
     _remaining_args = _remaining_args[1:]
 
-    sys.exit(run(_script_file, _remaining_args, _env))
+    sys.exit(run(_script_file, _config_output_dir, _remaining_args, _env))

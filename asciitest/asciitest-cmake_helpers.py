@@ -26,14 +26,17 @@ def create_master(asciitest_out_dir):
     """ will create a .cmake include file containing an entry for all existing
         asciidoc files and makes these files exist
     """
-    filename_out = os.path.join(asciitest_out_dir, "asciitest-master.cmake")
-    filename_in = os.path.join(asciitest_out_dir, "asciitest-all_input_files.txt")
+    # path join uses \ under windows which is not cmake compatible
+    filename_out = os.path.join(asciitest_out_dir, "asciitest-master.cmake").replace("\\","/")
+    # path join uses \ under windows which is not cmake compatible
+    filename_in = os.path.join(asciitest_out_dir, "asciitest-all_input_files.txt").replace("\\","/")
     with open(filename_out,'w') as f_out:
         for line in open(filename_in).readlines():
             f_out.write("# %s" % line)
+    # path join uses \ win32 which is not cmake compatible
             cmake_include_filename = os.path.join(
                 asciitest_out_dir,
-                save_cmake_filename(line))
+                save_cmake_filename(line)).replace("\\","/")
             #print("create entry '%s'" %cmake_include_filename)
             f_out.write("include(%s)\n" % cmake_include_filename )
             open(cmake_include_filename, 'a').close()
@@ -43,7 +46,9 @@ def cleanup(asciitest_out_dir, doc_file):
        leftover test files which would not be created from their 
        corresponding doc files any more
     """
-    filename = os.path.join(asciitest_out_dir, save_cmake_filename(doc_file))
+    # path join uses \ win32 which is not cmake compatible
+    filename = os.path.join(asciitest_out_dir, save_cmake_filename(doc_file)).replace("\\","/")
+    
     #print("cleanup %s %s" % (doc_file, filename))
     try:
         os.remove(filename)
