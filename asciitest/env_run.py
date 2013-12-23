@@ -33,7 +33,6 @@ def add_path_to_env_variable(env, name, value):
 
 
 def read_config(directory, warn_if_file_not_existent=True):
-    logging.error("using config dir: " + directory)
  
     try:
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
@@ -188,7 +187,6 @@ if __name__ == "__main__":
     logging.addLevelName( logging.INFO,     '(II)' )
     logging.addLevelName( logging.DEBUG,    '(DD)' )
     logging.addLevelName( logging.NOTSET,   '(NA)' )
-
     _env = {}
     _config_output_dir = None
 

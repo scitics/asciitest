@@ -152,7 +152,6 @@ def code_filter():
 
     test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
     test_list_file = open(test_list_filename, 'a')
-
     line_sep = os.linesep
 
     if language == "text":
@@ -225,17 +224,15 @@ def code_filter():
         template_4 = retrieve_template(_asciitest_config_dir, 'python', 4, test_type)
 
         subtest_counter = 0
-
+        # we must replace the \\ from os.path.join (windows only) with / for cmake
         test_filename = os.path.join(
                             output_dir,
-                            "TEST-%s-%s.py" % (document_name, test_name))
-
+                            "TEST-%s-%s.py" % (document_name, test_name)).replace("\\", "/")
         # [todo] - abstract information should be written here - generate
         #          cmake stuff outside
         test_list_file.write(
             'add_test(asciitest.%s_%s "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
                 document_name, test_name, test_filename))
-
         logging.info( "create a python script called '%s'", test_filename )
         logging.debug( "filename hash '%s'", save_cmake_filename(input_file) )
         logging.debug( "output dir '%s'", output_dir)
