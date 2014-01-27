@@ -12,15 +12,23 @@
 # - A2X_EXECUTABLE the a2x executable (only on UNIX systems)
 #
 
-# search the asciidoc executable
+# search the asciidoc executable in system first
+find_program( ASCIIDOC_EXECUTABLE
+                NAMES asciidoc asciidoc.py)
 
-find_program( ASCIIDOC_EXECUTABLE NAMES asciidoc asciidoc.py )
+# fallback to asciidoc provided somewhere else
+if(NOT ASCIIDOC_EXECUTABLE)
+    find_program( ASCIIDOC_EXECUTABLE
+                    NAMES asciidoc asciidoc.py
+                    HINTS ${CONFIG_ASCIIDOC_ALTERNATIVE_DIR})
+endif()
+
 set( __AsciiDoc_VARS ASCIIDOC_EXECUTABLE )
 
-if( UNIX )
-  find_program( A2X_EXECUTABLE NAMES a2x a2x.sh )
-  list( APPEND __AsciiDoc_VARS A2X_EXECUTABLE )
-endif( UNIX )
+#if( UNIX )
+#  find_program( A2X_EXECUTABLE NAMES a2x a2x.sh )
+#  list( APPEND __AsciiDoc_VARS A2X_EXECUTABLE )
+#endif( UNIX )
 
 mark_as_advanced( ${__AsciiDoc_VARS} )
 
