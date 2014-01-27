@@ -7,7 +7,7 @@
 
 project( asciitest )
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.11)
 
 # [todo] - make configurable
 file( GLOB_RECURSE ${PROJECT_NAME}_FILES  ${CMAKE_SOURCE_DIR}/DOC*.txt )
@@ -15,10 +15,11 @@ file( GLOB_RECURSE ${PROJECT_NAME}_FILES  ${CMAKE_SOURCE_DIR}/DOC*.txt )
 set(ASCIITEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "" FORCE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${ASCIITEST_SOURCE_DIR}/CMakeModules/" )
+
 find_package(Asciidoc)
 find_package(PythonInterp)
 
-if( PYTHONINTERP_FOUND )
+if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
     set(CONFIG_ASCIITEST_OUTDIR "${CMAKE_BINARY_DIR}/documentation"
         CACHE STRING
         "output directory for asciitest generated files")
@@ -201,8 +202,21 @@ if( PYTHONINTERP_FOUND )
 
 else()
 
-    message( WARNING "Python interpreter not found. Sexy HTML documentation won't be generated.." )
-    
+    if( NOT PYTHONINTERP_FOUND )
+        message( WARNING "Python interpreter not found." )
+    endif()
+
+    if( NOT ASCIIDOC_FOUND )
+        message( WARNING "Asciidoc not found." )
+    endif()
+
+    message( WARNING "Sexy HTML documentation with included tests won't be generated.." )
+
+    function(run_env_add_variable name value)
+        MESSAGE( STATUS "ignore setting variable ${name} - no asciitest available")
+    endfunction()
+
+
     # add documentation files to a dummy projet to have it easily accessible
     add_custom_target( ${PROJECT_NAME}_DEACTIVATED
         SOURCES ${${PROJECT_NAME}_FILES}
