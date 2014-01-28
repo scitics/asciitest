@@ -19,7 +19,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${ASCIITEST_SOURCE_DIR}/CMakeModules
 find_package(Asciidoc)
 find_package(PythonInterp)
 
-message( STATUS "Python/Asciidoc found: ${PYTHONINTERP_FOUND} ${ASCIIDOC_FOUND}"
+message(STATUS "Python/Asciidoc found: ${PYTHONINTERP_FOUND} ${ASCIIDOC_FOUND}")
 
 if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
     set(CONFIG_ASCIITEST_OUTDIR "${CMAKE_BINARY_DIR}/documentation"
@@ -220,3 +220,4 @@ else()
     )
 
 endif()
+
