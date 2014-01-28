@@ -19,6 +19,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${ASCIITEST_SOURCE_DIR}/CMakeModules
 find_package(Asciidoc)
 find_package(PythonInterp)
 
+message( STATUS "Python/Asciidoc found: ${PYTHONINTERP_FOUND} ${ASCIIDOC_FOUND}"
+
 if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
     set(CONFIG_ASCIITEST_OUTDIR "${CMAKE_BINARY_DIR}/documentation"
         CACHE STRING
@@ -208,7 +210,7 @@ else()
     message( WARNING "Sexy HTML documentation with included tests won't be generated.." )
 
     function(run_env_add_variable name value)
-        MESSAGE( STATUS "ignore setting variable ${name} - no asciitest available")
+        message( STATUS "ignore setting variable ${name} - no asciitest available")
     endfunction()
 
 

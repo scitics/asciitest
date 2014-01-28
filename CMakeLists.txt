@@ -18,23 +18,27 @@ if(NOT CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
                          "asciitest folder instead")
 endif()
 
-set(ASCIIDOC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/asciitest/CMakeModules/")
+set(CONFIG_ASCIIDOC_ALTERNATIVE_DIR "" CACHE PATH "location of asciidoc installation")
+
+message( STATUS "ASCIIDOC_EXECUTABLE: ${ASCIIDOC_EXECUTABLE}")
 
 if(NOT ASCIIDOC_EXECUTABLE)
-    if(NOT ASCIIDOC_DIR)
+    if(NOT IS_DIRECTORY "${CONFIG_ASCIIDOC_ALTERNATIVE_DIR}")
+ 
         message(WARNING "ASCIIDOC_EXECUTABLE not set - we will search for it"
                         "and use the standard location. Set ASCIIDOC_DIR to "
-                        "let a preferred (write enabled) installation.")
+                        "set a preferred (write enabled) installation.")
     endif()
 
-    #[todo] - make use of ASCIIDOC_DIR
+    #[todo] - make use of CONFIG_ASCIIDOC_ALTERNATIVE_DIR
 
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/asciitest/CMakeModules/" )
 
     find_package(Asciidoc REQUIRED)
 endif()
 
-option(CONFIG_HAVE_ASCIIDOC ON "let asciidoc with asciitest create docs and tests")
+option(CONFIG_HAVE_ASCIIDOC "let asciidoc with asciitest create docs and tests" ON)
+message( STATUS "CONFIG_HAVE_ASCIIDOC: ${CONFIG_HAVE_ASCIIDOC}")
 if(CONFIG_HAVE_ASCIIDOC)
     add_subdirectory(asciitest)
     run_env_add_variable("PYTHONPATH" "${CMAKE_BINARY_DIR}")
