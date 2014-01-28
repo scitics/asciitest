@@ -120,11 +120,6 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
         get_filename_component( docname ${infile} NAME_WE )
         set( outvar_html "${CONFIG_ASCIITEST_OUTDIR}/${docname}.html" )
 
-        if (MSVC)
-            set( ENV_FILE_DIR "${CMAKE_BINARY_DIR}/documentation/")
-        else()
-            set( ENV_FILE_DIR ${CMAKE_BINARY_DIR})
-        endif()
         add_custom_command(
             OUTPUT  ${outvar_html}
             COMMAND ${PYTHON_EXECUTABLE}
@@ -133,7 +128,7 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
             COMMAND ${PYTHON_EXECUTABLE}
                    "${ASCIITEST_SOURCE_DIR}/env_run.py"
                     -e "ASCIITEST_INPUT_DIR=${ASCIITEST_CONFIG_DIR}"
-                    --config-output-dir ${ENV_FILE_DIR}
+                    #--config-output-dir ${ENV_FILE_DIR}
                     ${ASCIIDOC_EXECUTABLE}
                     -a max-width=1024px
                     -a linkcss

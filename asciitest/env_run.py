@@ -33,7 +33,7 @@ def add_path_to_env_variable(env, name, value):
 
 
 def read_config(directory, warn_if_file_not_existent=True):
- 
+
     _values = {'PWD'        : os.getcwd(),
                'ENVIRONMENT': ()}
 
@@ -128,7 +128,7 @@ def configure_pwd(directory, pwd):
         logging.error("args: %s", sys.argv)
 
 
-def run(script_file, _config_output_dir, args, env):
+def run(script_file, args, env):
 
     _python_exe = sys.executable
 
@@ -138,8 +138,8 @@ def run(script_file, _config_output_dir, args, env):
 
     _env.update(env)
 
-    _env_file_dir = _config_output_dir
-    
+    _env_file_dir = os.path.dirname(_script_file)
+
     _env_values = read_config(_env_file_dir)
 
     for key, value in _env_values['ENVIRONMENT']:
@@ -198,7 +198,7 @@ if __name__ == "__main__":
     _env = {}
     _config_output_dir = None
 
-    logging.debug( "started with %s", str(sys.argv) )
+    logging.warning( "started with %s", str(sys.argv) )
 
     # we don't use OptionParser here because we want to pass all arguments
     # coming after the executable name
@@ -212,14 +212,21 @@ if __name__ == "__main__":
                                   '--configure-pwd',
                                   '--config-output-dir')):
 
-       if (len(_remaining_args) >= 1
+        if (len(_remaining_args) >= 1
            and _remaining_args[0] in ('-v', '--verbose')):
             # in case a config output directory has been provided we save
             # it for later use
             logging.getLogger().setLevel(logging.DEBUG)
             _remaining_args = _remaining_args[1:]
 
-       if (len(_remaining_args) >= 2
+        if (len(_remaining_args) >= 2
+           and _remaining_args[0] in ('--config-output-dir')):
+            # in case a config output directory has been provided we save
+            # it for later use
+            _config_output_dir = _remaining_args[1]
+            _remaining_args = _remaining_args[2:]
+
+        if (len(_remaining_args) >= 2
            and _remaining_args[0] in ('--configure-variable')):
             if not _config_output_dir:
                 logging.error("config output directory not set yet")
@@ -227,7 +234,7 @@ if __name__ == "__main__":
             configure_variable(_config_output_dir, _remaining_args[1])
             _remaining_args = _remaining_args[2:]
 
-       if (len(_remaining_args) >= 2
+        if (len(_remaining_args) >= 2
            and _remaining_args[0] in ('--configure-pwd')):
             if not _config_output_dir:
                 logging.error("config output directory not set yet")
@@ -235,12 +242,12 @@ if __name__ == "__main__":
             configure_pwd(_config_output_dir, _remaining_args[1])
             _remaining_args = _remaining_args[2:]
 
-       if (len(_remaining_args) >= 2
+        if (len(_remaining_args) >= 2
           and _remaining_args[0] in ('-p', '--python-executable')):
             _python_executable = _remaining_args[1]
             _remaining_args = _remaining_args[2:]
 
-       if (len(_remaining_args) >= 2
+        if (len(_remaining_args) >= 2
           and _remaining_args[0] in ('-e', '--set-env')):
             add_variable(_env,_remaining_args[1])
             _remaining_args = _remaining_args[2:]
@@ -263,5 +270,5 @@ if __name__ == "__main__":
     logging.debug("args:              '%s'", _remaining_args)
     logging.debug("env:               '%s'", _env)
 
-    sys.exit(run(_script_file, _config_output_dir, _remaining_args, _env))
+    sys.exit(run(_script_file, _remaining_args, _env))
 
