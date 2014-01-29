@@ -231,7 +231,7 @@ def code_filter():
         # [todo] - abstract information should be written here - generate
         #          cmake stuff outside
         test_list_file.write(
-            'add_test(asciitest.%s_%s "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
+            'add_test(asciitest.%s_%s "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
                 document_name, test_name, test_filename))
         logging.info( "create a python script called '%s'", test_filename )
         logging.debug( "filename hash '%s'", save_cmake_filename(input_file) )

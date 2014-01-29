@@ -130,7 +130,7 @@ the need to set any variables.
                  ]
   }
 
-["python"]
+[source,python]
 ----
 $ env_run.py TEST-foo.bar.py
 ----

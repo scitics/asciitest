@@ -8,9 +8,12 @@
 project( asciitest )
 
 cmake_minimum_required(VERSION 2.8.11)
+if(NOT CONFIG_ASCIITEST_DOC_PATTERN )
+    set(CONFIG_ASCIITEST_DOC_PATTERN "DOC*.txt")
+endif()
 
 # [todo] - make configurable
-file( GLOB_RECURSE ${PROJECT_NAME}_FILES  ${CMAKE_SOURCE_DIR}/DOC*.txt )
+file( GLOB_RECURSE ${PROJECT_NAME}_FILES "${CMAKE_SOURCE_DIR}/${CONFIG_ASCIITEST_DOC_PATTERN}" )
 
 set(ASCIITEST_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" CACHE INTERNAL "" FORCE)
 
@@ -32,6 +35,7 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
         CACHE PATH
         "directory with asciitest templates and runtime scripts")
 
+    message(STATUS "CONFIG_ASCIITEST_OUTDIR: ${CONFIG_ASCIITEST_OUTDIR}")
     file(MAKE_DIRECTORY ${CONFIG_ASCIITEST_OUTDIR})
 
     function(run_env_add_variable name value)
@@ -57,6 +61,7 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
     # create a file containing all input files - we'll need it later to
     # get rid of tests which do not exist any more
     set(input_files_file "${CONFIG_ASCIITEST_OUTDIR}/asciitest-all_input_files.txt" )
+    message(STATUS "XXX ${CMAKE_CTEST_COMMAND} ${${PROJECT_NAME}_FILES}")
     file(WRITE "${input_files_file}") # clear the file - should better be a remove
     foreach(filename ${${PROJECT_NAME}_FILES})
         file(APPEND "${input_files_file}" "${filename}\n")
@@ -182,20 +187,20 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
         TARGET ctest_run
             COMMENT "run CTest executable ${CTEST_EXECUTABLE} s ${CTEST_EXECUTABLE}"
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMAND "ctest" "-T" "test"
+            COMMAND "${CMAKE_CTEST_COMMAND}" "-T" "test"
                     "--output-on-failure" "--no-compress-output"
     )
 
-    add_custom_target( ctest_to_xunit )
-    add_custom_command(
-        TARGET ctest_to_xunit
-            COMMENT "generate xunit files from CTest output"
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            COMMAND ${PYTHON_EXECUTABLE}
-                    "${ASCIITEST_SOURCE_DIR}/cmake2xunit.py"
-                    "-d" "${CMAKE_BINARY_DIR}"
-                    "-o" "${CMAKE_BINARY_DIR}/xunit_test_output.xml"
-    )
+    #add_custom_target( ctest_to_xunit )
+    #add_custom_command(
+    #    TARGET ctest_to_xunit
+    #        COMMENT "generate xunit files from CTest output"
+    #        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    #        COMMAND ${PYTHON_EXECUTABLE}
+    #                "${ASCIITEST_SOURCE_DIR}/cmake2xunit.py"
+    #                "-d" "${CMAKE_BINARY_DIR}"
+    #                "-o" "${CMAKE_BINARY_DIR}/xunit_test_output.xml"
+    #)
 
 else()
 
