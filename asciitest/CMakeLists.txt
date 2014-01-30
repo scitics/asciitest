@@ -61,7 +61,6 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
     # create a file containing all input files - we'll need it later to
     # get rid of tests which do not exist any more
     set(input_files_file "${CONFIG_ASCIITEST_OUTDIR}/asciitest-all_input_files.txt" )
-    message(STATUS "XXX ${CMAKE_CTEST_COMMAND} ${${PROJECT_NAME}_FILES}")
     file(WRITE "${input_files_file}") # clear the file - should better be a remove
     foreach(filename ${${PROJECT_NAME}_FILES})
         file(APPEND "${input_files_file}" "${filename}\n")
@@ -120,6 +119,10 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
 
     add_custom_target( ${PROJECT_NAME} ALL
         SOURCES ${${PROJECT_NAME}_FILTER_FILES}
+        COMMAND "set" > "${CMAKE_BINARY_DIR}/env.txt"
+        COMMAND ${PYTHON_EXECUTABLE}
+               "${ASCIITEST_SOURCE_DIR}/env_run.py"
+                --get-env "HOME" > "${CMAKE_BINARY_DIR}/BuildType.txt"
     )
 
     function( create_doc_html infile )

@@ -38,7 +38,6 @@ def read_config(directory, warn_if_file_not_existent=True):
                'ENVIRONMENT': ()}
 
     try:
-        print "Bla",directory
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
 
         if not os.path.dirname(directory).startswith("/usr"):
@@ -133,7 +132,7 @@ def run(script_file, args, env):
     _python_exe = sys.executable
 
     _script_file = os.path.abspath(script_file)
-    logging.warning("sf: %s",_script_file)
+
     _env = os.environ.copy()
 
     _env.update(env)
@@ -198,8 +197,6 @@ if __name__ == "__main__":
     _env = {}
     _config_output_dir = None
 
-    logging.warning( "started with %s", str(sys.argv) )
-
     # we don't use OptionParser here because we want to pass all arguments
     # coming after the executable name
     _remaining_args = sys.argv[1:]
@@ -208,6 +205,7 @@ if __name__ == "__main__":
        and _remaining_args[0] in ('-v', '--verbose',
                                   '-p', '--python-executable',
                                   '-e', '--set-env',
+                                  '-g', '--get-env',
                                   '--configure-variable',
                                   '--configure-pwd',
                                   '--config-output-dir')):
@@ -225,6 +223,14 @@ if __name__ == "__main__":
             # it for later use
             _config_output_dir = _remaining_args[1]
             _remaining_args = _remaining_args[2:]
+
+        if (len(_remaining_args) >= 2
+           and _remaining_args[0] in ('-g', '--get-env')):
+            if _remaining_args[1] in os.environ:
+                print(os.environ[_remaining_args[1]])
+            else:
+                print("")
+            sys.exit(0)
 
         if (len(_remaining_args) >= 2
            and _remaining_args[0] in ('--configure-variable')):
@@ -251,6 +257,8 @@ if __name__ == "__main__":
           and _remaining_args[0] in ('-e', '--set-env')):
             add_variable(_env,_remaining_args[1])
             _remaining_args = _remaining_args[2:]
+
+    logging.info( "started with %s", str(sys.argv) )
 
     if len(_remaining_args) == 0:
         if _config_output_dir:
