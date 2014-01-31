@@ -129,27 +129,80 @@ def configure_pwd(directory, pwd):
 
 def replace(variable_to_modify, content):
     for key, value in content.iteritems():
-        logging.warning("HHH %s %s", key, value)
+        #logging.warning("HHH %s %s", key, value)
         variable_to_modify = variable_to_modify.replace("$(%s)" % key, value)
     return variable_to_modify
 
+def last_activity(path):
+    mtime = 0
+    for dirname, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            mtime = max(mtime, os.path.getmtime(os.path.join(dirname, filename)))
+    return mtime
+
+def guess_configuration_type(variables):
+    for conf_variable in ("$(OutDir)", "$(Configuration)"):
+        shortest_length = 1000
+        base_path = None
+        for key, value in variables:
+            #logging.warning("aaaaa %s %s", conf_variable, value)
+            if not conf_variable in value: continue
+            #logging.warning("bbbbb")
+            pathname = os.path.abspath(value)
+            effective_length = pathname.find(conf_variable)
+            if effective_length < shortest_length:
+                shortest_length = effective_length
+                base_path = pathname[:effective_length]
+                
+        if base_path == None: continue
+            
+        debug_path = os.path.join(base_path, 'Debug')
+        release_path = os.path.join(base_path, 'Release')
+        debug_exists = os.path.exists(debug_path)
+        release_exists = os.path.exists(release_path)
+        
+        if not (debug_exists or release): continue
+        
+        if debug_exists and not release_exists:
+            return 'Debug'
+            
+        if release_exists and not debug_exists:
+            return 'Release'
+
+        #logging.warning("cccccc %f %f", last_activity(debug_path), last_activity(release_path))
+            
+        if last_activity(debug_path) > last_activity(release_path):
+            return 'Debug'
+        else:
+            return 'Release'
+            
+    return None
+    
 def run(script_file, args, env):
 
     _python_exe = sys.executable
 
     _script_file = os.path.abspath(script_file)
 
-    _env = os.environ.copy()
-
-    _env.update(env)
-
     _env_file_dir = os.path.dirname(_script_file)
 
     _env_values = read_config(_env_file_dir)
 
+    # for visual studio we guess the last built configuration type
+    conf_type = guess_configuration_type(_env_values['ENVIRONMENT'])
+    
+    if conf_type:
+        env['OutDir'] = conf_type
+        env['Configuration'] = conf_type
+    
+    #logging.warning("guessed %s", conf_type)
+    _env = os.environ.copy()
+
+    _env.update(env)
+
     for key, value in _env_values['ENVIRONMENT']:
         new_value = replace(value, env)
-        logging.warning("YYY %s %s", value, new_value)
+        #logging.warning("YYY %s %s", value, new_value)
         add_path_to_env_variable(_env, key, new_value)
 
     # add this files directory, too
@@ -163,7 +216,7 @@ def run(script_file, args, env):
         _args = [_script_file] + args
 
     try:
-        logging.warning("XXX %s", _env['YSBOX_IMPORTER'] if 'YSBOX_IMPORTER' in _env else "---")
+        #logging.warning("XXX %s", _env['YSBOX_IMPORTER'] if 'YSBOX_IMPORTER' in _env else "---")
         _process = subprocess.Popen(
             _args,
             # stdout=subprocess.PIPE,
@@ -188,7 +241,7 @@ def add_variable(env, variable):
         logging.error("given variable definition '%s' is not valid", variable)
         return
     pos = variable.index('=')
-    logging.warning("VVV '%s'='%s'", variable[:pos],variable[pos+1:])
+    #logging.warning("VVV '%s'='%s'", variable[:pos],variable[pos+1:])
     env[variable[:pos]] = variable[pos+1:]
 
 

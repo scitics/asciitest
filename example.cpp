@@ -2,7 +2,11 @@
 
 int main(int argn, char **)
 {
-    printf("hello world\n");
+#   ifdef NDEBUG
+    printf("RELEASE hello world\n");
+#   else
+    printf("DEBUG hello world\n");
+#endif
     fflush(stdout);
 
     // return with failure if arguments exist

@@ -55,6 +55,8 @@ file( GLOB_RECURSE ${PROJECT_NAME}_FILES
 add_executable(example example.cpp
     ${${PROJECT_NAME}_FILES}
 )
+get_target_property(exe_location example LOCATION)
+run_env_add_variable("exeloc" "${exe_location}")
 
 
 add_test(generic_cpp_success example)
