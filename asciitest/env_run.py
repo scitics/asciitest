@@ -40,7 +40,8 @@ def read_config(directory, warn_if_file_not_existent=True):
     try:
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
 
-        if not os.path.dirname(directory).startswith("/usr"):
+        if not (os.path.dirname(directory).startswith("/usr")
+             or directory.endswith("\\asciidoc")):
             _values.update( ast.literal_eval(open(_env_file_name).read()) )
         else:
             _values = {}
@@ -126,6 +127,11 @@ def configure_pwd(directory, pwd):
         logging.error("exception occured in configure_pwd(): '%s'", ex)
         logging.error("args: %s", sys.argv)
 
+def replace(variable_to_modify, content):
+    for key, value in content.iteritems():
+        logging.warning("HHH %s %s", key, value)
+        variable_to_modify = variable_to_modify.replace("$(%s)" % key, value)
+    return variable_to_modify
 
 def run(script_file, args, env):
 
@@ -142,7 +148,9 @@ def run(script_file, args, env):
     _env_values = read_config(_env_file_dir)
 
     for key, value in _env_values['ENVIRONMENT']:
-        add_path_to_env_variable(_env, key, value)
+        new_value = replace(value, env)
+        logging.warning("YYY %s %s", value, new_value)
+        add_path_to_env_variable(_env, key, new_value)
 
     # add this files directory, too
     add_path_to_env_variable( _env,
@@ -155,16 +163,17 @@ def run(script_file, args, env):
         _args = [_script_file] + args
 
     try:
-
+        logging.warning("XXX %s", _env['YSBOX_IMPORTER'] if 'YSBOX_IMPORTER' in _env else "---")
         _process = subprocess.Popen(
             _args,
             # stdout=subprocess.PIPE,
             cwd     = _env_values['PWD'],
             env     = _env)
 
-        _asciidoc_output = _process.communicate()[0]
-        # print _asciidoc_output
+        _asciidoc_output = _process.communicate()
         _return_value = _process.returncode
+        print _asciidoc_output, _return_value 
+        
     except OSError, ex:
         logging.error("could not start process from args='%s', cwd='%s'",
                       _args, _env_values['PWD'])
@@ -179,6 +188,7 @@ def add_variable(env, variable):
         logging.error("given variable definition '%s' is not valid", variable)
         return
     pos = variable.index('=')
+    logging.warning("VVV '%s'='%s'", variable[:pos],variable[pos+1:])
     env[variable[:pos]] = variable[pos+1:]
 
 
@@ -279,4 +289,5 @@ if __name__ == "__main__":
     logging.debug("env:               '%s'", _env)
 
     sys.exit(run(_script_file, _remaining_args, _env))
+
 

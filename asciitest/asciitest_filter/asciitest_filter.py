@@ -230,8 +230,9 @@ def code_filter():
                             "TEST-%s-%s.py" % (document_name, test_name)).replace("\\", "/")
         # [todo] - abstract information should be written here - generate
         #          cmake stuff outside
+
         test_list_file.write(
-            'add_test(asciitest.%s_%s \"%s\" "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
+        'add_test(asciitest.%s_%s \"%s\" "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" -e "OutDir=${CTEST_CONFIGURATION_TYPE}" "%s")\n' % (
                 document_name, test_name, sys.executable.replace("\\", "/"), test_filename))
 
         logging.info( "create a python script called '%s'", test_filename )
