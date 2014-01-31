@@ -133,9 +133,9 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
 
         add_custom_command(
             OUTPUT  ${outvar_html}
-            COMMAND ${PYTHON_EXECUTABLE}
-                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
-                    "--cleanup" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
+#            COMMAND ${PYTHON_EXECUTABLE}
+#                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
+#                    "--cleanup" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
             COMMAND ${PYTHON_EXECUTABLE}
                    "${ASCIITEST_SOURCE_DIR}/env_run.py"
                     -e "ASCIITEST_INPUT_DIR=${ASCIITEST_CONFIG_DIR}"
@@ -150,10 +150,10 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
                     #-a icons
                     --out-file ${outvar_html}
                     ${infile}
-#            COMMAND ${PYTHON_EXECUTABLE}
-#                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
-#                    "--generate-master" "-o" ${CONFIG_ASCIITEST_OUTDIR}
-#            # re-run cmake since .cmake files might have been generated
+            COMMAND ${PYTHON_EXECUTABLE}
+                    "${ASCIITEST_SOURCE_DIR}/asciitest-cmake_helpers.py"
+                    "--conditional-copy" "-i" ${infile} "-o" ${CONFIG_ASCIITEST_OUTDIR}
+            # re-run cmake since .cmake files might have been generated
 #            COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}
 
             MAIN_DEPENDENCY

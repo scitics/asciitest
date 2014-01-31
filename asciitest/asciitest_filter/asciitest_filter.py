@@ -151,7 +151,8 @@ def code_filter():
     logging.debug("ASCIITEST_INPUT_DIR: %s", _asciitest_config_dir)
 
     test_list_filename = os.path.join( output_dir, save_cmake_filename(input_file))
-    test_list_file = open(test_list_filename, 'a')
+    test_list_file = open(test_list_filename + ".temp", 'a')
+
     line_sep = os.linesep
 
     if language == "text":
