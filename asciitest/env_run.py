@@ -41,7 +41,8 @@ def read_config(directory, warn_if_file_not_existent=True):
         _env_file_name = os.path.join(directory, "env_run_variables.txt")
 
         if not (os.path.dirname(directory).startswith("/usr")
-             or directory.endswith("\\asciidoc")):
+            or directory.endswith("\\asciidoc")
+            or directory.endswith("/asciidoc")):
             _values.update( ast.literal_eval(open(_env_file_name).read()) )
         else:
             _values = {}
@@ -223,9 +224,9 @@ def run(script_file, args, env):
             cwd     = _env_values['PWD'],
             env     = _env)
 
-        _asciidoc_output = _process.communicate()
+        _process_output = _process.communicate()
         _return_value = _process.returncode
-        print _asciidoc_output, _return_value 
+        #print _process_output, _return_value
         
     except OSError, ex:
         logging.error("could not start process from args='%s', cwd='%s'",
