@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # -*- coding: utf-8 -*-
 #
 # file: CMakeLists.txt (asciitest)
@@ -120,11 +119,11 @@ if( PYTHONINTERP_FOUND AND ASCIIDOC_FOUND )
 
     add_custom_target( ${PROJECT_NAME} ALL
         SOURCES ${${PROJECT_NAME}_FILTER_FILES}
-        COMMENT "build ${PROJECT_NAME}"
-        COMMAND "set" > "${CMAKE_BINARY_DIR}/env.txt"
-        COMMAND ${PYTHON_EXECUTABLE}
-               "${ASCIITEST_SOURCE_DIR}/env_run.py"
-                --get-env "HOME" > "${CMAKE_BINARY_DIR}/BuildType.txt"
+        COMMENT "building ${PROJECT_NAME}"
+        #COMMAND "set" > "${CMAKE_BINARY_DIR}/env.txt"
+        #COMMAND ${PYTHON_EXECUTABLE}
+        #       "${ASCIITEST_SOURCE_DIR}/env_run.py"
+        #        --get-env "HOME" > "${CMAKE_BINARY_DIR}/BuildType.txt"
     )
 
     function( create_doc_html infile )
