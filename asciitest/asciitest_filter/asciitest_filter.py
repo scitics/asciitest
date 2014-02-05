@@ -236,7 +236,7 @@ def code_filter():
             'add_test(asciitest.%s_%s \"%s\" "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
                 document_name, test_name, sys.executable.replace("\\", "/"), test_filename))
         test_list_file.write(
-            'set_tests_properties(asciitest.%s_%s PROPERTIES TIMEOUT 10)\n' % (
+            'set_tests_properties(asciitest.%s_%s PROPERTIES TIMEOUT 200)\n' % (
                 document_name, test_name))
 
         logging.info( "create a python script called '%s'", test_filename )
