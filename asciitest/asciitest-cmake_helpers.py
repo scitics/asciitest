@@ -12,8 +12,16 @@
 
 from optparse import OptionParser
 import os
+import errno
 import sys
 import hashlib
+
+def silentremove(filename):
+    try:
+        os.remove(filename)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
 
 def save_cmake_filename(filename):
     base_name = os.path.basename(os.path.abspath(filename.strip('\n ')))
@@ -37,13 +45,13 @@ def update_if_different(filename1, filename2):
         #print "hashes are equal - remove temp file '%s'" % filename1
 
         try:
-            os.remove(filename1)
+            silentremove(filename1)
         except:
             print "could not remove file '%s'" % filename1
     else:
         print "hashes differ (%s:%s) rename '%s'"% (hash1.hexdigest(), hash2.hexdigest(), filename1)
         try:
-            os.remove(filename2)
+            silentremove(filename2)
             os.rename(filename1, filename2)
         except Exception, ex:
             print "could not rename file '%s' to '%s'" % (filename1, filename2)
