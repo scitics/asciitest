@@ -43,9 +43,11 @@ def update_if_different(filename1, filename2):
     else:
         print "hashes differ (%s:%s) rename '%s'"% (hash1.hexdigest(), hash2.hexdigest(), filename1)
         try:
+            os.remove(filename2)
             os.rename(filename1, filename2)
-        except:
+        except Exception, ex:
             print "could not rename file '%s' to '%s'" % (filename1, filename2)
+            print "error was '%s'" % ex
 
 
 def create_master(asciitest_out_dir):
