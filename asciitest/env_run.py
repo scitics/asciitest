@@ -162,7 +162,7 @@ def guess_configuration_type(variables):
         debug_exists = os.path.exists(debug_path)
         release_exists = os.path.exists(release_path)
         
-        if not (debug_exists or release): continue
+        if not (debug_exists or release_exists): continue
         
         if debug_exists and not release_exists:
             return 'Debug'
