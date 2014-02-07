@@ -236,7 +236,10 @@ def code_filter():
             'add_test(asciitest.%s_%s \"%s\" "${CMAKE_CURRENT_SOURCE_DIR}/env_run.py" "%s")\n' % (
                 document_name, test_name, sys.executable.replace("\\", "/"), test_filename))
         test_list_file.write(
-            'set_tests_properties(asciitest.%s_%s PROPERTIES TIMEOUT 200)\n' % (
+            'set_tests_properties(asciitest.%s_%s PROPERTIES TIMEOUT 100)\n' % (
+                document_name, test_name))
+        test_list_file.write(
+            'set_tests_properties(asciitest.%s_%s PROPERTIES PASS_REGULAR_EXPRESSION "ALL_TESTS_SUCCEEDED")\n' % (
                 document_name, test_name))
 
         logging.info( "create a python script called '%s'", test_filename )
@@ -370,11 +373,15 @@ def code_filter():
             f.write( '    register_tests()'                                              + line_sep )
             f.write( '    ret_val = 0'                                                   + line_sep )
             f.write( '    try:'                                                          + line_sep )
-            f.write( '        ret_val = 0 if run_subtests() else -1'                     + line_sep )
+            f.write( '        ret_val = -2 if run_subtests() else -1'                    + line_sep )
             f.write( '    except Exception, ex:'                                         + line_sep )
             f.write( '        logging.error("error executing test")'                     + line_sep )
             f.write( '        logging.error(str(traceback.format_exc()))'                + line_sep )
             f.write( '        ret_val = -1'                                              + line_sep )
+            f.write( ''                                                                  + line_sep )
+            f.write( '    if ret_val == -2:'                                             + line_sep )
+            f.write( '        logging.critical("ALL_TESTS_SUCCEEDED")'                   + line_sep )
+            f.write( ''                                                                  + line_sep )
             f.write( '    asciitest.finalize_tests()'                                    + line_sep )
             f.write( '    sys.exit(ret_val)'                                             + line_sep )
             f.write( ''                                                                  + line_sep )
