@@ -3,12 +3,20 @@
 #
 # file: env_run.py
 #
-# Copyright 2011 - 2013 scitics GmbH
+# (C) Copyright 2011 - 2014 scitics GmbH
 #
-# Information  contained  herein  is  subject  to change  without  notice.
-# scitics GmbH  retains ownership and  all other rights  in this software.
-# Any reproduction of the software or components thereof without the prior
-# written permission of scitics GmbH is prohibited.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or imp#lied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 """runs an executable file with additional enviroment variables which can
    be read from command line or from input file located at same place as
